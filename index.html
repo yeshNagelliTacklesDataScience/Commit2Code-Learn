@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Commit2Code Python Lab</title>
+<meta name="description" content="Learn Python with Commit2Code: lessons, practice exercises, and a code playground that runs right in your browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400..700&amp;family=Nunito:wght@400..800&amp;family=JetBrains+Mono:wght@400..700&amp;display=swap">
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23ff9f1c'/%3E%3Ctext x='32' y='42' font-family='monospace' font-size='26' font-weight='700' text-anchor='middle' fill='%2316213e'%3E%3C/%3E%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+
+<header class="site-header">
+  <a class="brand" href="#print">
+    <span class="brand-mark" aria-hidden="true">&lt;/&gt;</span>
+    <span class="brand-name">Commit2Code Python Lab</span>
+  </a>
+  <div class="header-right">
+    <span id="py-status" class="py-status" data-state="loading" role="status">Loading Python…</span>
+    <a class="btn-pill" href="#playground">Open the Playground</a>
+  </div>
+</header>
+
+<div class="layout">
+
+<nav class="side-nav" aria-label="Lessons">
+  <p class="nav-label">Lessons</p>
+  <a class="tab-link" href="#print" data-tab="print"><span class="tab-week">Week 1</span><span class="tab-name">Print &amp; Input</span></a>
+  <a class="tab-link" href="#variables" data-tab="variables"><span class="tab-week">Week 2</span><span class="tab-name">Variables</span></a>
+  <a class="tab-link" href="#types" data-tab="types"><span class="tab-week">Week 3</span><span class="tab-name">Data Types</span></a>
+  <a class="tab-link" href="#conditionals" data-tab="conditionals"><span class="tab-week">Week 4</span><span class="tab-name">If / Elif / Else</span></a>
+  <a class="tab-link" href="#playground" data-tab="playground"><span class="tab-week">Free code</span><span class="tab-name">Playground</span></a>
+  <p class="nav-label nav-soon-label">Coming soon</p>
+  <span class="soon">Loops <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg></span>
+  <span class="soon">Methods <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg></span>
+  <span class="soon">Lists <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg></span>
+</nav>
+
+<main id="main">
+
+<!-- =================== WEEK 1: PRINT & INPUT =================== -->
+<section class="tab-panel" id="tab-print" aria-labelledby="h-print">
+  <div class="hero">
+    <p class="eyebrow">Week 1</p>
+    <h1 id="h-print">Print &amp; Input</h1>
+    <p class="hero-lede">Make the computer show output with print(), and ask the user questions with input().</p>
+    <div class="chips"><span class="chip">print()</span><span class="chip">strings</span><span class="chip">input()</span><span class="chip">reading errors</span></div>
+  </div>
+
+  <section class="section">
+    <h2>Reference</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>print() displays output</h3>
+        <pre class="code"><span class="f">print</span>(<span class="s">"Hello, world!"</span>)</pre>
+        <p>Shows: <b>Hello, world!</b> Each print() shows up on its own line.</p>
+      </div>
+      <div class="card">
+        <h3>Strings are text in quotes</h3>
+        <pre class="code"><span class="s">"pizza"</span>
+<span class="s">"I love coding!"</span>
+<span class="s">"( ^_^ )"</span></pre>
+        <p>Quotes always come in pairs: one to start, one to end.</p>
+      </div>
+      <div class="card">
+        <h3>input() asks a question</h3>
+        <pre class="code">name = <span class="f">input</span>(<span class="s">"What is your name? "</span>)
+<span class="f">print</span>(<span class="s">"Hi "</span> + name)</pre>
+        <p>The program waits for the user to type and press Enter. Leave a space at the end of your question.</p>
+      </div>
+      <div class="card">
+        <h3>+ joins strings</h3>
+        <pre class="code"><span class="f">print</span>(<span class="s">"My name is "</span> + <span class="s">"Maya"</span>)</pre>
+        <p>Shows: <b>My name is Maya</b>. Forget the space and you get “My name isMaya”.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="bugs">
+    <h2>Common bugs</h2>
+    <div class="bug-grid">
+      <div class="bug"><code>Print("hi")</code><p>NameError. Use a lowercase <b>p</b>.</p></div>
+      <div class="bug"><code>print("hi)</code><p>SyntaxError. Close the quote.</p></div>
+      <div class="bug"><code>print("hi"</code><p>SyntaxError. Close the parenthesis.</p></div>
+      <div class="bug"><code>print(hi)</code><p>NameError. Text needs quotes.</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2>Practice</h2><p>Edit the code, press Run, and check the output.</p></div>
+
+    <article class="exercise" data-ex="e1">
+      <div class="ex-head"><span class="badge">Exercise 1</span><h3>Say hello</h3></div>
+      <p class="ex-task">Change the code so it prints your name on one line and your favorite food on the next.</p>
+      <label class="field-label" for="code-e1">Your code</label>
+      <textarea class="editor" id="code-e1" rows="4" spellcheck="false" autocapitalize="off" autocomplete="off">print("Hello, world!")</textarea>
+      <div class="actions">
+        <button type="button" class="btn-run"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"></path></svg>Run</button>
+        <button type="button" class="btn-stop" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2"></rect></svg>Stop</button>
+        <button type="button" class="btn-ghost btn-hint" aria-expanded="false" aria-controls="hint-e1">Hint</button>
+        <button type="button" class="btn-ghost btn-reset">Start over</button>
+      </div>
+      <p class="hint" id="hint-e1" hidden>Use two print() lines, one for each thing. Keep the quotes!</p>
+      <div class="output" hidden><p class="output-label">Output</p><pre class="output-text" aria-live="polite"></pre></div>
+    </article>
+
+    <article class="exercise" data-ex="e2">
+      <div class="ex-head"><span class="badge">Exercise 2</span><h3>Bug hunt</h3></div>
+      <p class="ex-task">This code has <b>two</b> bugs. Run it, read the error, and fix it until it works.</p>
+      <label class="field-label" for="code-e2">Your code</label>
+      <textarea class="editor" id="code-e2" rows="3" spellcheck="false" autocapitalize="off" autocomplete="off">Print("Hi there!)</textarea>
+      <div class="actions">
+        <button type="button" class="btn-run"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"></path></svg>Run</button>
+        <button type="button" class="btn-stop" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2"></rect></svg>Stop</button>
+        <button type="button" class="btn-ghost btn-hint" aria-expanded="false" aria-controls="hint-e2">Hint</button>
+        <button type="button" class="btn-ghost btn-reset">Start over</button>
+      </div>
+      <p class="hint" id="hint-e2" hidden>Look at the first letter, and count the quotation marks.</p>
+      <div class="output" hidden><p class="output-label">Output</p><pre class="output-text" aria-live="polite"></pre></div>
+    </article>
+
+    <article class="exercise" data-ex="e3">
+      <div class="ex-head"><span class="badge">Exercise 3</span><h3>Build a chatbot</h3></div>
+      <p class="ex-task">Add at least two more questions, and make the program reply to each answer.</p>
+      <label class="field-label" for="code-e3">Your code</label>
+      <textarea class="editor" id="code-e3" rows="5" spellcheck="false" autocapitalize="off" autocomplete="off">name = input("What is your name? ")
+print("Nice to meet you, " + name + "!")</textarea>
+      <div class="actions">
+        <button type="button" class="btn-run"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"></path></svg>Run</button>
+        <button type="button" class="btn-stop" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2"></rect></svg>Stop</button>
+        <button type="button" class="btn-ghost btn-hint" aria-expanded="false" aria-controls="hint-e3">Hint</button>
+        <button type="button" class="btn-ghost btn-reset">Start over</button>
+      </div>
+      <p class="hint" id="hint-e3" hidden>Copy the two lines and change the question, like game = input("Favorite game? ").</p>
+      <div class="output" hidden><p class="output-label">Output</p><pre class="output-text" aria-live="polite"></pre></div>
+    </article>
+  </section>
+
+  <section class="section vocab-section">
+    <h2>Vocab</h2>
+    <div class="vocab">
+      <span><b>Output</b> · what your program shows</span>
+      <span><b>Function</b> · a command like print()</span>
+      <span><b>String</b> · text in quotes</span>
+      <span><b>Bug</b> · a mistake in code</span>
+      <span><b>Debugging</b> · finding and fixing bugs</span>
+    </div>
+  </section>
+</section>
+
+<!-- =================== WEEK 2: VARIABLES =================== -->
+<section class="tab-panel" id="tab-variables" aria-labelledby="h-variables" hidden>
+  <div class="hero">
+    <p class="eyebrow">Week 2</p>
+    <h1 id="h-variables">Variables</h1>
+    <p class="hero-lede">A variable stores a value so your program can remember it and use it later.</p>
+    <div class="chips"><span class="chip">variables</span><span class="chip">values</span><span class="chip">name vs "name"</span><span class="chip">naming rules</span></div>
+  </div>
+
+  <section class="section">
+    <h2>Reference</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>A variable stores a value</h3>
+        <div class="box-diagram">
+          <div class="box" aria-hidden="true"><span class="box-label">name</span><span class="box-value">"Maya"</span></div>
+          <pre class="code">name = <span class="s">"Maya"</span>
+<span class="f">print</span>(name)</pre>
+        </div>
+        <p>Variable name on the left, value on the right. Read = as “stores”.</p>
+      </div>
+      <div class="card">
+        <h3>Quotes change everything</h3>
+        <pre class="code">name = <span class="s">"Maya"</span>
+<span class="f">print</span>(name)      <span class="c"># Maya</span>
+<span class="f">print</span>(<span class="s">"name"</span>)    <span class="c"># name</span></pre>
+        <p>No quotes: use what’s in the box. Quotes: print the exact text.</p>
+      </div>
+      <div class="card">
+        <h3>A new value replaces the old one</h3>
+        <pre class="code">food = <span class="s">"pizza"</span>
+food = <span class="s">"tacos"</span>
+<span class="f">print</span>(food)      <span class="c"># tacos</span></pre>
+        <p>A variable holds one value at a time: the newest one.</p>
+      </div>
+      <div class="card">
+        <h3>Naming rules</h3>
+        <ul>
+          <li>No spaces: use <code>my_name</code></li>
+          <li>Can’t start with a number</li>
+          <li>Capitals matter: <code>Name</code> and <code>name</code> are different</li>
+          <li>Pick names that describe the value</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="bugs">
+    <h2>Common bugs</h2>
+    <div class="bug-grid">
+      <div class="bug"><code>my name = "Ava"</code><p>SyntaxError. No spaces in names: my_name.</p></div>
+      <div class="bug"><code>name = Maya</code><p>NameError. The value needs quotes.</p></div>
+      <div class="bug"><code>print(Name)</code><p>NameError. Capitals must match exactly.</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2>Practice</h2><p>Edit the code, press Run, and check the output.</p></div>
+
+    <article class="exercise" data-ex="e4">
+      <div class="ex-head"><span class="badge">Exercise 1</span><h3>Predict, then run</h3></div>
+      <p class="ex-task">Before you press Run, type what you think this code will print.</p>
+      <label class="field-label" for="code-e4">Your code</label>
+      <textarea class="editor" id="code-e4" rows="4" spellcheck="false" autocapitalize="off" autocomplete="off">snack = "chips"
+snack = "popcorn"
+print(snack)</textarea>
+      <div class="field">
+        <label class="field-label" for="guess-e4">My prediction</label>
+        <input class="guess" id="guess-e4" type="text" placeholder="I think it will print…" autocomplete="off">
+      </div>
+      <div class="actions">
+        <button type="button" class="btn-run"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"></path></svg>Run</button>
+        <button type="button" class="btn-stop" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2"></rect></svg>Stop</button>
+        <button type="button" class="btn-ghost btn-hint" aria-expanded="false" aria-controls="hint-e4">Hint</button>
+        <button type="button" class="btn-ghost btn-reset">Start over</button>
+      </div>
+      <p class="hint" id="hint-e4" hidden>How many values can one box hold at a time?</p>
+      <div class="output" hidden><p class="output-label">Output</p><pre class="output-text" aria-live="polite"></pre></div>
+    </article>
+
+    <article class="exercise" data-ex="e5">
+      <div class="ex-head"><span class="badge">Exercise 2</span><h3>All about me</h3></div>
+      <p class="ex-task">Make variables for your favorite food and game, print them, then change a value and run it again.</p>
+      <label class="field-label" for="code-e5">Your code</label>
+      <textarea class="editor" id="code-e5" rows="5" spellcheck="false" autocapitalize="off" autocomplete="off">food = "tacos"
+game = "Minecraft"
+print("I love " + food)
+print("I play " + game)</textarea>
+      <div class="actions">
+        <button type="button" class="btn-run"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"></path></svg>Run</button>
+        <button type="button" class="btn-stop" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2"></rect></svg>Stop</button>
+        <button type="button" class="btn-ghost btn-hint" aria-expanded="false" aria-controls="hint-e5">Hint</button>
+        <button type="button" class="btn-ghost btn-reset">Start over</button>
+      </div>
+      <p class="hint" id="hint-e5" hidden>Only change the part inside the quotes on the right of the = sign.</p>
+      <div class="output" hidden><p class="output-label">Output</p><pre class="output-text" aria-live="polite"></pre></div>
+    </article>
+
+    <article class="exercise" data-ex="e6">
+      <div class="ex-head"><span class="badge">Exercise 3</span><h3>Mad Libs</h3></div>
+      <p class="ex-task">Ask for more words and write your own silly story with at least three print() lines.</p>
+      <label class="field-label" for="code-e6">Your code</label>
+      <textarea class="editor" id="code-e6" rows="7" spellcheck="false" autocapitalize="off" autocomplete="off">animal = input("Name an animal: ")
+adjective = input("Give me an adjective: ")
+food = input("Name a food: ")
+
+print("A " + adjective + " " + animal + " walked into school.")
+print("It ate everyone's " + food + "!")</textarea>
+      <div class="actions">
+        <button type="button" class="btn-run"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"></path></svg>Run</button>
+        <button type="button" class="btn-stop" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2"></rect></svg>Stop</button>
+        <button type="button" class="btn-ghost btn-hint" aria-expanded="false" aria-controls="hint-e6">Hint</button>
+        <button type="button" class="btn-ghost btn-reset">Start over</button>
+      </div>
+      <p class="hint" id="hint-e6" hidden>Try asking for a place, a number, or an action word. Watch the spaces inside your quotes.</p>
+      <div class="output" hidden><p class="output-label">Output</p><pre class="output-text" aria-live="polite"></pre></div>
+    </article>
+  </section>
+
+  <section class="section vocab-section">
+    <h2>Vocab</h2>
+    <div class="vocab">
+      <span><b>Variable</b> · a name that stores a value</span>
+      <span><b>Value</b> · the information stored</span>
+      <span><b>=</b> · stores a value in a variable</span>
+    </div>
+  </section>
+</section>
+
+<!-- =================== WEEK 3: DATA TYPES =================== -->
+<section class="tab-panel" id="tab-types" aria-labelledby="h-types" hidden>
+  <div class="hero">
+    <p class="eyebrow">Week 3</p>
+    <h1 id="h-types">Data Types</h1>
+    <p class="hero-lede">Every value has a type. The type decides what you can do with it, like math or joining text.</p>
+    <div class="chips"><span class="chip">strings, integers, floats</span><span class="chip">math operators</span><span class="chip">int()</span><span class="chip">str()</span></div>
+  </div>
+
+  <section class="section">
+    <h2>Reference</h2>
+    <div class="grid grid-small">
+      <div class="card"><h3 class="type-name">String</h3><p class="type-ex str">"hello"  "42"</p><p>Text in quotes, even if it looks like a number.</p></div>
+      <div class="card"><h3 class="type-name">Integer</h3><p class="type-ex num">12  500  -3</p><p>A whole number. No quotes.</p></div>
+      <div class="card"><h3 class="type-name">Float</h3><p class="type-ex num">3.5  9.99</p><p>A number with a decimal point.</p></div>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <h3>Math operators</h3>
+        <pre class="code"><span class="f">print</span>(<span class="n">5</span> + <span class="n">3</span>)    <span class="c"># 8   add</span>
+<span class="f">print</span>(<span class="n">9</span> - <span class="n">4</span>)    <span class="c"># 5   subtract</span>
+<span class="f">print</span>(<span class="n">6</span> * <span class="n">7</span>)    <span class="c"># 42  multiply</span>
+<span class="f">print</span>(<span class="n">7</span> / <span class="n">2</span>)    <span class="c"># 3.5 divide</span></pre>
+        <p>Multiply is a star <b>*</b>, not an x.</p>
+      </div>
+      <div class="card">
+        <h3>Same +, different jobs</h3>
+        <pre class="code"><span class="f">print</span>(<span class="s">"5"</span> + <span class="s">"5"</span>)  <span class="c"># 55</span>
+<span class="f">print</span>(<span class="n">5</span> + <span class="n">5</span>)      <span class="c"># 10</span></pre>
+        <p>Strings get glued together. Integers get added.</p>
+      </div>
+      <div class="card">
+        <h3>input() always gives a string</h3>
+        <pre class="code">age = <span class="n">int</span>(<span class="f">input</span>(<span class="s">"Age? "</span>))
+<span class="f">print</span>(age + <span class="n">1</span>)</pre>
+        <p><b>int()</b> turns the typed text into a number so you can do math.</p>
+      </div>
+      <div class="card">
+        <h3>str() for sentences</h3>
+        <pre class="code"><span class="f">print</span>(<span class="s">"You are "</span> + <span class="n">str</span>(age))</pre>
+        <p><b>str()</b> turns a number back into text so + can join it to a sentence.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="bugs">
+    <h2>Common bugs</h2>
+    <div class="bug-grid">
+      <div class="bug"><code>print("Age: " + 12)</code><p>TypeError. Use str(12) to join a number.</p></div>
+      <div class="bug"><code>int("twelve")</code><p>ValueError. int() needs digits like 12.</p></div>
+      <div class="bug"><code>int(input("Age? ")</code><p>SyntaxError. Two ( need two ) at the end.</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2>Practice</h2><p>Edit the code, press Run, and check the output.</p></div>
+
+    <article class="exercise" data-ex="e7">
+      <div class="ex-head"><span class="badge">Exercise 1</span><h3>Calculator challenge</h3></div>
+      <p class="ex-task">How many seconds are in one day? Then add a line that works out how many are in a week.</p>
+      <label class="field-label" for="code-e7">Your code</label>
+      <textarea class="editor" id="code-e7" rows="3" spellcheck="false" autocapitalize="off" autocomplete="off">print(60 * 60 * 24)</textarea>
+      <div class="actions">
+        <button type="button" class="btn-run"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"></path></svg>Run</button>
+        <button type="button" class="btn-stop" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2"></rect></svg>Stop</button>
+        <button type="button" class="btn-ghost btn-hint" aria-expanded="false" aria-controls="hint-e7">Hint</button>
+        <button type="button" class="btn-ghost btn-reset">Start over</button>
+      </div>
+      <p class="hint" id="hint-e7" hidden>A week has 7 days. Multiply one more time!</p>
+      <div class="output" hidden><p class="output-label">Output</p><pre class="output-text" aria-live="polite"></pre></div>
+    </article>
+
+    <article class="exercise" data-ex="e8">
+      <div class="ex-head"><span class="badge">Exercise 2</span><h3>Fix the type error</h3></div>
+      <p class="ex-task">Run this and read the error. Then use int() to fix it so it prints your age next year.</p>
+      <label class="field-label" for="code-e8">Your code</label>
+      <textarea class="editor" id="code-e8" rows="3" spellcheck="false" autocapitalize="off" autocomplete="off">age = input("How old are you? ")
+print(age + 1)</textarea>
+      <div class="actions">
+        <button type="button" class="btn-run"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"></path></svg>Run</button>
+        <button type="button" class="btn-stop" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2"></rect></svg>Stop</button>
+        <button type="button" class="btn-ghost btn-hint" aria-expanded="false" aria-controls="hint-e8">Hint</button>
+        <button type="button" class="btn-ghost btn-reset">Start over</button>
+      </div>
+      <p class="hint" id="hint-e8" hidden>Wrap the whole input(...) inside int( ). Count your parentheses!</p>
+      <div class="output" hidden><p class="output-label">Output</p><pre class="output-text" aria-live="polite"></pre></div>
+    </article>
+
+    <article class="exercise" data-ex="e9">
+      <div class="ex-head"><span class="badge">Exercise 3</span><h3>Future Me calculator</h3></div>
+      <p class="ex-task">Run it, then add your own facts, like your age in months or in 50 years.</p>
+      <label class="field-label" for="code-e9">Your code</label>
+      <textarea class="editor" id="code-e9" rows="7" spellcheck="false" autocapitalize="off" autocomplete="off">name = input("What is your name? ")
+age = int(input("How old are you? "))
+
+print("Hi " + name + "!")
+print("In 10 years you will be " + str(age + 10))
+print("You have been alive about " + str(age * 365) + " days!")</textarea>
+      <div class="actions">
+        <button type="button" class="btn-run"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"></path></svg>Run</button>
+        <button type="button" class="btn-stop" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2"></rect></svg>Stop</button>
+        <button type="button" class="btn-ghost btn-hint" aria-expanded="false" aria-controls="hint-e9">Hint</button>
+        <button type="button" class="btn-ghost btn-reset">Start over</button>
+      </div>
+      <p class="hint" id="hint-e9" hidden>Do the math first, like age * 12, then wrap it in str() to add it to your sentence.</p>
+      <div class="output" hidden><p class="output-label">Output</p><pre class="output-text" aria-live="polite"></pre></div>
+    </article>
+  </section>
+
+  <section class="section vocab-section">
+    <h2>Vocab</h2>
+    <div class="vocab">
+      <span><b>Data type</b> · the kind of value</span>
+      <span><b>Integer</b> · a whole number</span>
+      <span><b>Float</b> · a decimal number</span>
+      <span><b>Operator</b> · a math symbol</span>
+      <span><b>int() / str()</b> · change a value’s type</span>
+    </div>
+  </section>
+</section>
+
+<!-- =================== WEEK 4: IF / ELIF / ELSE =================== -->
+<section class="tab-panel" id="tab-conditionals" aria-labelledby="h-conditionals" hidden>
+  <div class="hero">
+    <p class="eyebrow">Week 4</p>
+    <h1 id="h-conditionals">If / Elif / Else</h1>
+    <p class="hero-lede">Teach your program to make decisions. First, meet booleans: values that can only be True or False.</p>
+    <div class="chips"><span class="chip">booleans</span><span class="chip">comparisons</span><span class="chip">if / else</span><span class="chip">elif</span><span class="chip">indenting</span></div>
+  </div>
+
+  <section class="section">
+    <h2>Part 1: Booleans</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>A boolean is True or False</h3>
+        <div class="bool-pills"><span class="bool bool-true">True</span><span class="bool bool-false">False</span></div>
+        <pre class="code">is_raining = <span class="n">True</span>
+has_homework = <span class="n">False</span></pre>
+        <p>A new data type with only two values. No quotes, and always a capital T or F.</p>
+      </div>
+      <div class="card">
+        <h3>Comparisons give a boolean</h3>
+        <pre class="code"><span class="f">print</span>(<span class="n">5</span> &gt; <span class="n">3</span>)          <span class="c"># True</span>
+<span class="f">print</span>(<span class="n">10</span> == <span class="n">2</span>)        <span class="c"># False</span>
+<span class="f">print</span>(<span class="s">"cat"</span> == <span class="s">"cat"</span>)  <span class="c"># True</span></pre>
+        <p>Python checks the comparison and answers True or False.</p>
+      </div>
+      <div class="card">
+        <h3>Comparison operators</h3>
+        <div class="ops">
+          <p><code>==</code> equal to</p>
+          <p><code>!=</code> not equal to</p>
+          <p><code>&gt;</code> greater than</p>
+          <p><code>&lt;</code> less than</p>
+          <p><code>&gt;=</code> greater or equal</p>
+          <p><code>&lt;=</code> less or equal</p>
+        </div>
+        <p><b>=</b> stores a value. <b>==</b> asks “are these equal?”</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Part 2: Making decisions</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>if runs code when it’s True</h3>
+        <pre class="code">answer = <span class="f">input</span>(<span class="s">"Like pizza? "</span>)
+<span class="k">if</span> answer == <span class="s">"yes"</span>:
+    <span class="f">print</span>(<span class="s">"Same!"</span>)</pre>
+        <p>If the condition is True, the indented code runs. If it’s False, Python skips it.</p>
+      </div>
+      <div class="card">
+        <h3>else is the backup plan</h3>
+        <pre class="code"><span class="k">if</span> answer == <span class="s">"yes"</span>:
+    <span class="f">print</span>(<span class="s">"Same!"</span>)
+<span class="k">else</span>:
+    <span class="f">print</span>(<span class="s">"More for me!"</span>)</pre>
+        <p>else runs when the if is False. One of the two always runs.</p>
+      </div>
+      <div class="card">
+        <h3>elif adds more choices</h3>
+        <pre class="code"><span class="k">if</span> score &gt;= <span class="n">90</span>:
+    <span class="f">print</span>(<span class="s">"Amazing!"</span>)
+<span class="k">elif</span> score &gt;= <span class="n">70</span>:
+    <span class="f">print</span>(<span class="s">"Nice job!"</span>)
+<span class="k">else</span>:
+    <span class="f">print</span>(<span class="s">"Keep practicing!"</span>)</pre>
+        <p>Python checks from top to bottom and runs only the <b>first</b> one that’s True.</p>
+      </div>
+      <div class="card">
+        <h3>The two rules</h3>
+        <ul>
+          <li>End the if, elif or else line with a colon <b>:</b></li>
+          <li>Indent the code inside with 4 spaces (or the Tab key)</li>
+          <li>Only indented lines belong to the if</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="bugs">
+    <h2>Common bugs</h2>
+    <div class="bug-grid">
+      <div class="bug"><code>if age = 12:</code><p>SyntaxError. Use == to compare.</p></div>
+      <div class="bug"><code>if answer == "yes"</code><p>SyntaxError. Add a colon at the end.</p></div>
+      <div class="bug"><code>print("Same!")</code><p>IndentationError when not indented under the if.</p></div>
+      <div class="bug"><code>is_fun = true</code><p>NameError. Booleans need a capital: True.</p></div>
+      <div class="bug"><code>if input("Age? ") &gt; 12:</code><p>TypeError. Use int() before comparing numbers.</p></div>
+      <div class="bug"><code>"Yes" == "yes"</code><p>Sneaky bug: this is False. Capitals matter!</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2>Practice</h2><p>Edit the code, press Run, and check the output.</p></div>
+
+    <article class="exercise" data-ex="e10">
+      <div class="ex-head"><span class="badge">Exercise 1</span><h3>True or False?</h3></div>
+      <p class="ex-task">Predict each line before you run it. Then write two comparisons of your own.</p>
+      <label class="field-label" for="code-e10">Your code</label>
+      <textarea class="editor" id="code-e10" rows="5" spellcheck="false" autocapitalize="off" autocomplete="off">print(7 > 3)
+print(5 == 6)
+print("dog" == "dog")
+print(10 != 10)</textarea>
+      <div class="field">
+        <label class="field-label" for="guess-e10">My prediction</label>
+        <input class="guess" id="guess-e10" type="text" placeholder="True, False, …" autocomplete="off">
+      </div>
+      <div class="actions">
+        <button type="button" class="btn-run"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"></path></svg>Run</button>
+        <button type="button" class="btn-stop" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2"></rect></svg>Stop</button>
+        <button type="button" class="btn-ghost btn-hint" aria-expanded="false" aria-controls="hint-e10">Hint</button>
+        <button type="button" class="btn-ghost btn-reset">Start over</button>
+      </div>
+      <p class="hint" id="hint-e10" hidden>!= means “not equal.” Is 10 not equal to 10?</p>
+      <div class="output" hidden><p class="output-label">Output</p><pre class="output-text" aria-live="polite"></pre></div>
+    </article>
+
+    <article class="exercise" data-ex="e11">
+      <div class="ex-head"><span class="badge">Exercise 2</span><h3>Secret password</h3></div>
+      <p class="ex-task">Run it twice: once with the right password and once with a wrong one. Then change the password and the messages.</p>
+      <label class="field-label" for="code-e11">Your code</label>
+      <textarea class="editor" id="code-e11" rows="6" spellcheck="false" autocapitalize="off" autocomplete="off">password = input("Enter the password: ")
+
+if password == "python123":
+    print("Access granted!")
+else:
+    print("Access denied!")</textarea>
+      <div class="actions">
+        <button type="button" class="btn-run"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"></path></svg>Run</button>
+        <button type="button" class="btn-stop" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2"></rect></svg>Stop</button>
+        <button type="button" class="btn-ghost btn-hint" aria-expanded="false" aria-controls="hint-e11">Hint</button>
+        <button type="button" class="btn-ghost btn-reset">Start over</button>
+      </div>
+      <p class="hint" id="hint-e11" hidden>The password has to match exactly, including capitals. Keep the colons and the indents.</p>
+      <div class="output" hidden><p class="output-label">Output</p><pre class="output-text" aria-live="polite"></pre></div>
+    </article>
+
+    <article class="exercise" data-ex="e12">
+      <div class="ex-head"><span class="badge">Exercise 3</span><h3>Weather helper</h3></div>
+      <p class="ex-task">Try different temperatures. Then add another elif for snow weather, like below 32.</p>
+      <label class="field-label" for="code-e12">Your code</label>
+      <textarea class="editor" id="code-e12" rows="8" spellcheck="false" autocapitalize="off" autocomplete="off">temp = int(input("What's the temperature? "))
+
+if temp > 85:
+    print("It's hot! Grab some water.")
+elif temp > 60:
+    print("Perfect weather!")
+else:
+    print("Bring a jacket!")</textarea>
+      <div class="actions">
+        <button type="button" class="btn-run"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"></path></svg>Run</button>
+        <button type="button" class="btn-stop" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2"></rect></svg>Stop</button>
+        <button type="button" class="btn-ghost btn-hint" aria-expanded="false" aria-controls="hint-e12">Hint</button>
+        <button type="button" class="btn-ghost btn-reset">Start over</button>
+      </div>
+      <p class="hint" id="hint-e12" hidden>Order matters! Put your new check before the else, and think about which check Python reaches first.</p>
+      <div class="output" hidden><p class="output-label">Output</p><pre class="output-text" aria-live="polite"></pre></div>
+    </article>
+  </section>
+
+  <section class="section vocab-section">
+    <h2>Vocab</h2>
+    <div class="vocab">
+      <span><b>Boolean</b> · a value that is True or False</span>
+      <span><b>Condition</b> · a question with a True/False answer</span>
+      <span><b>Comparison operator</b> · ==, !=, &gt;, &lt;</span>
+      <span><b>if / elif / else</b> · choose which code runs</span>
+      <span><b>Indent</b> · spaces that put code inside an if</span>
+    </div>
+  </section>
+</section>
+
+<!-- =================== PLAYGROUND =================== -->
+<section class="tab-panel" id="tab-playground" aria-labelledby="h-playground" hidden>
+  <div class="hero hero-orange">
+    <p class="eyebrow">Free code</p>
+    <h1 id="h-playground">Playground</h1>
+    <p class="hero-lede">Try anything you want. Write your code, press Run, and see what happens.</p>
+  </div>
+
+  <div class="pg-layout">
+    <div class="pg-main">
+      <article class="exercise pg" data-ex="playground">
+        <div class="pg-editor">
+          <div class="pg-bar">
+            <label for="code-playground">my_code.py</label>
+            <div class="actions">
+              <button type="button" class="btn-ghost btn-download">Download</button>
+              <button type="button" class="btn-ghost btn-reset">Reset</button>
+              <button type="button" class="btn-run"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"></path></svg>Run</button>
+              <button type="button" class="btn-stop" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2"></rect></svg>Stop</button>
+            </div>
+          </div>
+          <textarea class="editor" id="code-playground" rows="16" spellcheck="false" autocapitalize="off" autocomplete="off"># Write any Python code here, then press Run!
+print("Hello, world!")</textarea>
+        </div>
+        <div class="output pg-output" hidden><p class="output-label">Output</p><pre class="output-text" aria-live="polite"></pre></div>
+      </article>
+      <p class="pg-note">Your code is saved on this computer while you work. Use <b>Download</b> to keep a copy or move it to another computer. Tip: press <b>Ctrl + Enter</b> to run.</p>
+    </div>
+
+    <aside class="quick-ref" aria-label="Quick reference">
+      <h2>Quick reference</h2>
+      <div class="qr-item"><p>Show output</p><code>print("hi")</code></div>
+      <div class="qr-item"><p>Ask a question</p><code>name = input("Name? ")</code></div>
+      <div class="qr-item"><p>Store a value</p><code>food = "tacos"</code></div>
+      <div class="qr-item"><p>Join text</p><code>"Hi " + name</code></div>
+      <div class="qr-item"><p>Do math</p><code>+   -   *   /</code></div>
+      <div class="qr-item"><p>Text to number</p><code>int(input("Age? "))</code></div>
+      <div class="qr-item"><p>Number to text</p><code>str(age)</code></div>
+      <div class="qr-item"><p>Make a decision</p><pre>if age &gt;= 13:
+    print("Teen!")
+else:
+    print("Not yet!")</pre></div>
+    </aside>
+  </div>
+</section>
+
+</main>
+</div>
+
+<footer class="site-footer">
+  <p>Commit2Code Python Lab · Your code runs right here in the browser and is saved only on this computer.</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
