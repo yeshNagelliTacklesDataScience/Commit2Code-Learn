@@ -32,9 +32,10 @@
   <a class="tab-link" href="#variables" data-tab="variables"><span class="tab-week">Week 2</span><span class="tab-name">Variables</span></a>
   <a class="tab-link" href="#types" data-tab="types"><span class="tab-week">Week 3</span><span class="tab-name">Data Types</span></a>
   <a class="tab-link" href="#conditionals" data-tab="conditionals"><span class="tab-week">Week 4</span><span class="tab-name">If / Elif / Else</span></a>
+  <a class="tab-link" href="#loops" data-tab="loops"><span class="tab-week">Week 5</span><span class="tab-name">Loops</span></a>
   <a class="tab-link" href="#playground" data-tab="playground"><span class="tab-week">Free code</span><span class="tab-name">Playground</span></a>
+  <a class="tab-link" href="#games" data-tab="games"><span class="tab-week">Team games</span><span class="tab-name">Game Room</span></a>
   <p class="nav-label nav-soon-label">Coming soon</p>
-  <span class="soon">Loops <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg></span>
   <span class="soon">Methods <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg></span>
   <span class="soon">Lists <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg></span>
 </nav>
@@ -573,6 +574,330 @@ else:
   </section>
 </section>
 
+<!-- =================== WEEK 5: LOOPS =================== -->
+<section class="tab-panel" id="tab-loops" aria-labelledby="h-loops" hidden>
+  <div class="hero">
+    <p class="eyebrow">Week 5</p>
+    <h1 id="h-loops">Loops</h1>
+    <p class="hero-lede">Make Python repeat things for you. A for loop repeats a set number of times. A while loop repeats until something changes.</p>
+    <div class="chips"><span class="chip">for loops</span><span class="chip">range()</span><span class="chip">while loops</span><span class="chip">counters</span><span class="chip">infinite loops</span></div>
+  </div>
+
+  <section class="section">
+    <h2>Part 1: for loops</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>A for loop repeats code</h3>
+        <pre class="code"><span class="k">for</span> i <span class="k">in</span> <span class="f">range</span>(<span class="n">3</span>):
+    <span class="f">print</span>(<span class="s">"Hip hip hooray!"</span>)</pre>
+        <p>The indented line runs 3 times. Like if, the loop line ends with a colon and the code inside is indented.</p>
+      </div>
+      <div class="card">
+        <h3>range() counts for you</h3>
+        <pre class="code"><span class="f">range</span>(<span class="n">5</span>)         <span class="c"># 0 1 2 3 4</span>
+<span class="f">range</span>(<span class="n">1</span>, <span class="n">6</span>)      <span class="c"># 1 2 3 4 5</span>
+<span class="f">range</span>(<span class="n">0</span>, <span class="n">11</span>, <span class="n">2</span>)  <span class="c"># 0 2 4 6 8 10</span></pre>
+        <p>range starts at 0 unless you say otherwise, and it <b>stops before</b> the last number. The third number is the step size.</p>
+      </div>
+      <div class="card">
+        <h3>The loop variable changes each time</h3>
+        <pre class="code"><span class="k">for</span> i <span class="k">in</span> <span class="f">range</span>(<span class="n">1</span>, <span class="n">4</span>):
+    <span class="f">print</span>(<span class="s">"Round "</span> + <span class="n">str</span>(i))</pre>
+        <p>Prints Round 1, Round 2, Round 3. Each trip through the loop is called an <b>iteration</b>.</p>
+      </div>
+      <div class="card">
+        <h3>Loop through a string</h3>
+        <pre class="code"><span class="k">for</span> letter <span class="k">in</span> <span class="s">"cat"</span>:
+    <span class="f">print</span>(letter)</pre>
+        <p>Prints c, then a, then t. A for loop can go through each letter of a string.</p>
+      </div>
+      <div class="card">
+        <h3>Keep a running total</h3>
+        <pre class="code">total = <span class="n">0</span>
+<span class="k">for</span> n <span class="k">in</span> <span class="f">range</span>(<span class="n">1</span>, <span class="n">6</span>):
+    total = total + n
+<span class="f">print</span>(total)      <span class="c"># 15</span></pre>
+        <p>Start a variable at 0 <b>before</b> the loop, add to it inside, and print it <b>after</b>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Part 2: while loops</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>while repeats while it’s True</h3>
+        <pre class="code">count = <span class="n">3</span>
+<span class="k">while</span> count &gt; <span class="n">0</span>:
+    <span class="f">print</span>(count)
+    count = count - <span class="n">1</span>
+<span class="f">print</span>(<span class="s">"Liftoff!"</span>)</pre>
+        <p>Python checks the condition before every trip. When it becomes False, the loop ends.</p>
+      </div>
+      <div class="card">
+        <h3>Watch out for infinite loops</h3>
+        <pre class="code">count = <span class="n">3</span>
+<span class="k">while</span> count &gt; <span class="n">0</span>:
+    <span class="f">print</span>(count)
+    <span class="c"># forgot: count = count - 1</span></pre>
+        <p>If nothing changes, the condition stays True forever. Press <b>Stop</b> to end it, then fix your code.</p>
+      </div>
+      <div class="card">
+        <h3>Repeat until the user gets it right</h3>
+        <pre class="code">password = <span class="s">""</span>
+<span class="k">while</span> password != <span class="s">"python"</span>:
+    password = <span class="f">input</span>(<span class="s">"Password? "</span>)
+<span class="f">print</span>(<span class="s">"Welcome!"</span>)</pre>
+        <p>The loop keeps asking until the answer matches.</p>
+      </div>
+      <div class="card">
+        <h3>break leaves a loop early</h3>
+        <pre class="code"><span class="k">while</span> <span class="n">True</span>:
+    word = <span class="f">input</span>(<span class="s">"Say something: "</span>)
+    <span class="k">if</span> word == <span class="s">"quit"</span>:
+        <span class="k">break</span>
+    <span class="f">print</span>(<span class="s">"You said "</span> + word)</pre>
+        <p><b>while True</b> would run forever, so <b>break</b> is the way out.</p>
+      </div>
+      <div class="card">
+        <h3>for or while?</h3>
+        <ul>
+          <li><b>for</b>: you know how many times. “Do this 10 times.”</li>
+          <li><b>while</b>: you repeat until something happens. “Keep guessing until you get it.”</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="bugs">
+    <h2>Common bugs</h2>
+    <div class="bug-grid">
+      <div class="bug"><code>for i in range(5)</code><p>SyntaxError. Add a colon at the end.</p></div>
+      <div class="bug"><code>range(1, 10)</code><p>Sneaky bug: stops at 9. Use range(1, 11) to reach 10.</p></div>
+      <div class="bug"><code>while count &gt; 0:</code><p>Never ends if you forget to change count inside the loop.</p></div>
+      <div class="bug"><code>print("Number " + i)</code><p>TypeError. i is a number: use str(i).</p></div>
+      <div class="bug"><code>print(total)</code><p>Indented inside the loop? It prints every time. Un-indent it to print once.</p></div>
+      <div class="bug"><code>count = 0</code><p>while count &gt; 0 never runs if count starts at 0.</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2>Practice: for loops</h2><p>Edit the code, press Run, and check the output.</p></div>
+
+    <article class="exercise" data-ex="e13">
+      <div class="ex-head"><span class="badge">Exercise 1</span><h3>Predict the count</h3></div>
+      <p class="ex-task">Before you press Run, type what you think this loop will print.</p>
+      <label class="field-label" for="code-e13">Your code</label>
+      <textarea class="editor" id="code-e13" rows="3" spellcheck="false" autocapitalize="off" autocomplete="off">for i in range(4):
+    print(i)</textarea>
+      <div class="field">
+        <label class="field-label" for="guess-e13">My prediction</label>
+        <input class="guess" id="guess-e13" type="text" placeholder="I think it will print…" autocomplete="off">
+      </div>
+      <div class="actions">
+        <button type="button" class="btn-run"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"></path></svg>Run</button>
+        <button type="button" class="btn-stop" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2"></rect></svg>Stop</button>
+        <button type="button" class="btn-ghost btn-hint" aria-expanded="false" aria-controls="hint-e13">Hint</button>
+        <button type="button" class="btn-ghost btn-reset">Start over</button>
+      </div>
+      <p class="hint" id="hint-e13" hidden>range(4) starts at 0 and stops before 4.</p>
+      <div class="output" hidden><p class="output-label">Output</p><pre class="output-text" aria-live="polite"></pre></div>
+    </article>
+
+    <article class="exercise" data-ex="e14">
+      <div class="ex-head"><span class="badge">Exercise 2</span><h3>Team cheer</h3></div>
+      <p class="ex-task">Make the cheer repeat 10 times. Then make each line show its number, like “Go team! #1”.</p>
+      <label class="field-label" for="code-e14">Your code</label>
+      <textarea class="editor" id="code-e14" rows="3" spellcheck="false" autocapitalize="off" autocomplete="off">for i in range(3):
+    print("Go team!")</textarea>
+      <div class="actions">
+        <button type="button" class="btn-run"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"></path></svg>Run</button>
+        <button type="button" class="btn-stop" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2"></rect></svg>Stop</button>
+        <button type="button" class="btn-ghost btn-hint" aria-expanded="false" aria-controls="hint-e14">Hint</button>
+        <button type="button" class="btn-ghost btn-reset">Start over</button>
+      </div>
+      <p class="hint" id="hint-e14" hidden>Use range(1, 11) so i goes from 1 to 10, then join it with "Go team! #" + str(i).</p>
+      <div class="output" hidden><p class="output-label">Output</p><pre class="output-text" aria-live="polite"></pre></div>
+    </article>
+
+    <article class="exercise" data-ex="e15">
+      <div class="ex-head"><span class="badge">Exercise 3</span><h3>Count it out</h3></div>
+      <p class="ex-task">Change the range so it counts from 1 to 10. Then make it count only even numbers: 2, 4, 6, 8, 10.</p>
+      <label class="field-label" for="code-e15">Your code</label>
+      <textarea class="editor" id="code-e15" rows="3" spellcheck="false" autocapitalize="off" autocomplete="off">for i in range(1, 6):
+    print(i)</textarea>
+      <div class="actions">
+        <button type="button" class="btn-run"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"></path></svg>Run</button>
+        <button type="button" class="btn-stop" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2"></rect></svg>Stop</button>
+        <button type="button" class="btn-ghost btn-hint" aria-expanded="false" aria-controls="hint-e15">Hint</button>
+        <button type="button" class="btn-ghost btn-reset">Start over</button>
+      </div>
+      <p class="hint" id="hint-e15" hidden>range stops before the second number. For evens, add a third number: the step, range(2, 11, 2).</p>
+      <div class="output" hidden><p class="output-label">Output</p><pre class="output-text" aria-live="polite"></pre></div>
+    </article>
+
+    <article class="exercise" data-ex="e16">
+      <div class="ex-head"><span class="badge">Exercise 4</span><h3>Times table machine</h3></div>
+      <p class="ex-task">Run it with your favorite number. Then change it to go all the way up to 12.</p>
+      <label class="field-label" for="code-e16">Your code</label>
+      <textarea class="editor" id="code-e16" rows="4" spellcheck="false" autocapitalize="off" autocomplete="off">num = int(input("Pick a number: "))
+for i in range(1, 11):
+    print(str(num) + " x " + str(i) + " = " + str(num * i))</textarea>
+      <div class="actions">
+        <button type="button" class="btn-run"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"></path></svg>Run</button>
+        <button type="button" class="btn-stop" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2"></rect></svg>Stop</button>
+        <button type="button" class="btn-ghost btn-hint" aria-expanded="false" aria-controls="hint-e16">Hint</button>
+        <button type="button" class="btn-ghost btn-reset">Start over</button>
+      </div>
+      <p class="hint" id="hint-e16" hidden>To include 12, the range has to stop at 13.</p>
+      <div class="output" hidden><p class="output-label">Output</p><pre class="output-text" aria-live="polite"></pre></div>
+    </article>
+
+    <article class="exercise" data-ex="e17">
+      <div class="ex-head"><span class="badge">Exercise 5</span><h3>Loop bug hunt</h3></div>
+      <p class="ex-task">This loop has <b>three</b> bugs. Fix them one at a time until it prints Loop 0 through Loop 4.</p>
+      <label class="field-label" for="code-e17">Your code</label>
+      <textarea class="editor" id="code-e17" rows="3" spellcheck="false" autocapitalize="off" autocomplete="off">for i in range(5)
+print("Loop " + i)</textarea>
+      <div class="actions">
+        <button type="button" class="btn-run"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"></path></svg>Run</button>
+        <button type="button" class="btn-stop" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2"></rect></svg>Stop</button>
+        <button type="button" class="btn-ghost btn-hint" aria-expanded="false" aria-controls="hint-e17">Hint</button>
+        <button type="button" class="btn-ghost btn-reset">Start over</button>
+      </div>
+      <p class="hint" id="hint-e17" hidden>Look for a missing colon, a missing indent, and a number being joined to a string.</p>
+      <div class="output" hidden><p class="output-label">Output</p><pre class="output-text" aria-live="polite"></pre></div>
+    </article>
+
+    <article class="exercise" data-ex="e18">
+      <div class="ex-head"><span class="badge">Exercise 6</span><h3>Add it all up</h3></div>
+      <p class="ex-task">This adds the numbers from 1 to 10. Change it to add up every number from 1 to 100. Can you guess the answer first?</p>
+      <label class="field-label" for="code-e18">Your code</label>
+      <textarea class="editor" id="code-e18" rows="5" spellcheck="false" autocapitalize="off" autocomplete="off">total = 0
+for n in range(1, 11):
+    total = total + n
+print("The total is " + str(total))</textarea>
+      <div class="actions">
+        <button type="button" class="btn-run"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"></path></svg>Run</button>
+        <button type="button" class="btn-stop" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2"></rect></svg>Stop</button>
+        <button type="button" class="btn-ghost btn-hint" aria-expanded="false" aria-controls="hint-e18">Hint</button>
+        <button type="button" class="btn-ghost btn-reset">Start over</button>
+      </div>
+      <p class="hint" id="hint-e18" hidden>Only one number needs to change. What should the range stop at to include 100?</p>
+      <div class="output" hidden><p class="output-label">Output</p><pre class="output-text" aria-live="polite"></pre></div>
+    </article>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2>Practice: while loops</h2><p>If a program never ends, press Stop.</p></div>
+
+    <article class="exercise" data-ex="e19">
+      <div class="ex-head"><span class="badge">Exercise 7</span><h3>Rocket countdown</h3></div>
+      <p class="ex-task">Make the countdown start at 10. Then make it count down by 2s instead.</p>
+      <label class="field-label" for="code-e19">Your code</label>
+      <textarea class="editor" id="code-e19" rows="6" spellcheck="false" autocapitalize="off" autocomplete="off">count = 5
+while count > 0:
+    print(count)
+    count = count - 1
+print("Liftoff!")</textarea>
+      <div class="actions">
+        <button type="button" class="btn-run"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"></path></svg>Run</button>
+        <button type="button" class="btn-stop" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2"></rect></svg>Stop</button>
+        <button type="button" class="btn-ghost btn-hint" aria-expanded="false" aria-controls="hint-e19">Hint</button>
+        <button type="button" class="btn-ghost btn-reset">Start over</button>
+      </div>
+      <p class="hint" id="hint-e19" hidden>Change the starting value of count. To count by 2s, change how much you subtract each time.</p>
+      <div class="output" hidden><p class="output-label">Output</p><pre class="output-text" aria-live="polite"></pre></div>
+    </article>
+
+    <article class="exercise" data-ex="e20">
+      <div class="ex-head"><span class="badge">Exercise 8</span><h3>Fix the infinite loop</h3></div>
+      <p class="ex-task">Run this, then press <b>Stop</b> because it never ends! Add one line so the player loses a life each time.</p>
+      <label class="field-label" for="code-e20">Your code</label>
+      <textarea class="editor" id="code-e20" rows="5" spellcheck="false" autocapitalize="off" autocomplete="off">lives = 3
+while lives > 0:
+    print("You have " + str(lives) + " lives left")
+print("Game over!")</textarea>
+      <div class="actions">
+        <button type="button" class="btn-run"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"></path></svg>Run</button>
+        <button type="button" class="btn-stop" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2"></rect></svg>Stop</button>
+        <button type="button" class="btn-ghost btn-hint" aria-expanded="false" aria-controls="hint-e20">Hint</button>
+        <button type="button" class="btn-ghost btn-reset">Start over</button>
+      </div>
+      <p class="hint" id="hint-e20" hidden>Inside the loop (indented), add lives = lives - 1.</p>
+      <div class="output" hidden><p class="output-label">Output</p><pre class="output-text" aria-live="polite"></pre></div>
+    </article>
+
+    <article class="exercise" data-ex="e21">
+      <div class="ex-head"><span class="badge">Exercise 9</span><h3>The locked door</h3></div>
+      <p class="ex-task">Try some wrong passwords before the right one. Then add a print inside the loop that says “Wrong! Try again.”</p>
+      <label class="field-label" for="code-e21">Your code</label>
+      <textarea class="editor" id="code-e21" rows="5" spellcheck="false" autocapitalize="off" autocomplete="off">password = ""
+while password != "open sesame":
+    password = input("Say the password: ")
+print("The door creaks open...")</textarea>
+      <div class="actions">
+        <button type="button" class="btn-run"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"></path></svg>Run</button>
+        <button type="button" class="btn-stop" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2"></rect></svg>Stop</button>
+        <button type="button" class="btn-ghost btn-hint" aria-expanded="false" aria-controls="hint-e21">Hint</button>
+        <button type="button" class="btn-ghost btn-reset">Start over</button>
+      </div>
+      <p class="hint" id="hint-e21" hidden>To print only for wrong answers, use an if inside the loop: if password != "open sesame":</p>
+      <div class="output" hidden><p class="output-label">Output</p><pre class="output-text" aria-live="polite"></pre></div>
+    </article>
+
+    <article class="exercise" data-ex="e22">
+      <div class="ex-head"><span class="badge">Exercise 10</span><h3>Challenge: Guess the Number</h3></div>
+      <p class="ex-task">Play it, then make it better: count how many guesses it took. <b>Bonus:</b> make the secret number random by changing the first two lines to <code>import random</code> and <code>secret = random.randint(1, 10)</code>.</p>
+      <label class="field-label" for="code-e22">Your code</label>
+      <textarea class="editor" id="code-e22" rows="11" spellcheck="false" autocapitalize="off" autocomplete="off">secret = 7
+guess = 0
+
+while guess != secret:
+    guess = int(input("Guess a number from 1 to 10: "))
+    if guess < secret:
+        print("Too low!")
+    elif guess > secret:
+        print("Too high!")
+
+print("You got it!")</textarea>
+      <div class="actions">
+        <button type="button" class="btn-run"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"></path></svg>Run</button>
+        <button type="button" class="btn-stop" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2"></rect></svg>Stop</button>
+        <button type="button" class="btn-ghost btn-hint" aria-expanded="false" aria-controls="hint-e22">Hint</button>
+        <button type="button" class="btn-ghost btn-reset">Start over</button>
+      </div>
+      <p class="hint" id="hint-e22" hidden>Make a variable tries = 0 before the loop, add 1 to it inside the loop, and print it at the end with str(tries).</p>
+      <div class="output" hidden><p class="output-label">Output</p><pre class="output-text" aria-live="polite"></pre></div>
+    </article>
+  </section>
+
+  <section class="section vocab-section">
+    <h2>Vocab</h2>
+    <div class="vocab">
+      <span><b>Loop</b> · code that repeats</span>
+      <span><b>Iteration</b> · one trip through a loop</span>
+      <span><b>for loop</b> · repeats a set number of times</span>
+      <span><b>while loop</b> · repeats while a condition is True</span>
+      <span><b>range()</b> · makes a list of numbers to count with</span>
+      <span><b>Infinite loop</b> · a loop that never ends</span>
+      <span><b>break</b> · jumps out of a loop</span>
+    </div>
+  </section>
+</section>
+
+<!-- =================== GAME ROOM =================== -->
+<section class="tab-panel" id="tab-games" aria-labelledby="h-games" hidden>
+  <div class="hero hero-orange">
+    <p class="eyebrow">Team games</p>
+    <h1 id="h-games">Game Room</h1>
+    <p class="hero-lede">Race your classmates to fix bugs, crack codes, and build programs together.</p>
+  </div>
+  <div id="games-app">
+    <p class="muted-text">Loading games…</p>
+  </div>
+</section>
+
 <!-- =================== PLAYGROUND =================== -->
 <section class="tab-panel" id="tab-playground" aria-labelledby="h-playground" hidden>
   <div class="hero hero-orange">
@@ -615,6 +940,12 @@ print("Hello, world!")</textarea>
     print("Teen!")
 else:
     print("Not yet!")</pre></div>
+      <div class="qr-item"><p>Repeat a set number of times</p><pre>for i in range(5):
+    print(i)</pre></div>
+      <div class="qr-item"><p>Repeat until something changes</p><pre>count = 3
+while count &gt; 0:
+    print(count)
+    count = count - 1</pre></div>
     </aside>
   </div>
 </section>
@@ -627,5 +958,7 @@ else:
 </footer>
 
 <script src="app.js"></script>
+<script src="game-data.js"></script>
+<script src="games.js"></script>
 </body>
 </html>

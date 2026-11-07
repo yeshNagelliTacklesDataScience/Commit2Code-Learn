@@ -2,6 +2,8 @@
 (function () {
   "use strict";
 
+  const C2C = (window.C2C = window.C2C || {});
+
   // ---------- Small helpers ----------
   const STORE_PREFIX = "c2c-code-";
   const MAX_OUTPUT_CHARS = 100000;
@@ -15,14 +17,21 @@
   function storageRemove(key) {
     try { window.localStorage.removeItem(key); } catch (e) { /* ignore */ }
   }
+  C2C.storage = { get: storageGet, set: storageSet, remove: storageRemove };
 
   // ---------- Tabs ----------
+  // The address looks like #loops or #games/debug/variables. The part before
+  // the first "/" picks the tab; the Game Room reads the rest.
   const panels = Array.from(document.querySelectorAll(".tab-panel"));
   const tabIds = panels.map((p) => p.id.replace("tab-", ""));
   const tabLinks = Array.from(document.querySelectorAll("[data-tab]"));
+  let currentTab = null;
 
-  function showTab(id, scroll) {
+  function showTab(hash, scroll) {
+    let id = (hash || "").split("/")[0];
     if (!tabIds.includes(id)) id = tabIds[0];
+    const changed = id !== currentTab;
+    currentTab = id;
     panels.forEach((p) => { p.hidden = p.id !== "tab-" + id; });
     tabLinks.forEach((a) => {
       if (a.dataset.tab === id) {
@@ -36,7 +45,7 @@
         a.removeAttribute("aria-current");
       }
     });
-    if (scroll) window.scrollTo(0, 0);
+    if (scroll && changed) window.scrollTo(0, 0);
   }
   window.addEventListener("hashchange", () => showTab(location.hash.slice(1), true));
   showTab(location.hash.slice(1), false);
@@ -52,62 +61,132 @@
       "Loading Python…";
   }
 
-  // ---------- Python worker ----------
-  let worker = null;
-  let ready = false;
-  let queued = null;   // a run waiting for Python to finish loading
-  let active = null;   // the exercise currently running
+  // ---------- Python runner (shared by lessons and games) ----------
+  // Python.run({ code, onText(text), onInput(prompt, reply), onDone(error),
+  //              onStopped(reason), timeoutMs }) -> false if something is already running.
+  const Python = (function () {
+    let worker = null;
+    let ready = false;
+    let queued = null;
+    let job = null;
 
-  function workerUrl() {
-    const base = new URLSearchParams(location.search).get("pyodide");
-    return base ? "py-worker.js?base=" + encodeURIComponent(base) : "py-worker.js";
-  }
+    function workerUrl() {
+      const base = new URLSearchParams(location.search).get("pyodide");
+      return base ? "py-worker.js?base=" + encodeURIComponent(base) : "py-worker.js";
+    }
 
-  function startWorker() {
-    ready = false;
-    setStatus("loading");
-    worker = new Worker(workerUrl());
-    worker.onmessage = onWorkerMessage;
-    worker.onerror = () => {
+    function loadFailed() {
       setStatus("error");
-      if (active) finish({ name: "LoadError", message: "Python couldn't start. Check the internet connection and refresh the page.", line: null });
+      if (job) finish({ name: "LoadError", message: "Python couldn't start. Check the internet connection and refresh the page.", line: null });
+    }
+
+    function start() {
+      ready = false;
+      setStatus("loading");
+      worker = new Worker(workerUrl());
+      worker.onmessage = onMessage;
+      worker.onerror = loadFailed;
+    }
+
+    function send(j) {
+      worker.postMessage({ type: "run", code: j.code });
+    }
+
+    function onMessage(event) {
+      const msg = event.data;
+      if (msg.type === "ready") {
+        ready = true;
+        setStatus("ready");
+        if (queued) { const q = queued; queued = null; send(q); }
+        return;
+      }
+      if (msg.type === "load-error") { loadFailed(); return; }
+      if (!job) return;
+      if (msg.type === "out") {
+        if (job.onText) job.onText(msg.text);
+      } else if (msg.type === "input") {
+        const j = job;
+        const reply = (value) => { if (job === j) worker.postMessage({ type: "input-reply", value: String(value) }); };
+        if (j.onInput) j.onInput(msg.prompt, reply);
+        else reply("");
+      } else if (msg.type === "done") {
+        finish(msg.error);
+      }
+    }
+
+    function finish(error) {
+      const j = job;
+      job = null;
+      if (!j) return;
+      clearTimeout(j.timer);
+      if (j.onDone) j.onDone(error || null);
+    }
+
+    function run(opts) {
+      if (job) return false;
+      job = Object.assign({}, opts);
+      if (opts.timeoutMs) job.timer = setTimeout(() => stop("timeout"), opts.timeoutMs);
+      if (ready) send(job);
+      else queued = job;
+      return true;
+    }
+
+    function stop(reason) {
+      if (!job) return;
+      const j = job;
+      job = null;
+      queued = null;
+      clearTimeout(j.timer);
+      worker.terminate();
+      start();
+      if (j.onStopped) j.onStopped(reason || "stopped");
+    }
+
+    return {
+      start: start,
+      run: run,
+      stop: stop,
+      isBusy: () => !!job,
+      isReady: () => ready,
     };
-  }
+  })();
+  C2C.Python = Python;
 
-  function onWorkerMessage(event) {
-    const msg = event.data;
-    if (msg.type === "ready") {
-      ready = true;
-      setStatus("ready");
-      if (queued) { const q = queued; queued = null; sendRun(q); }
-      return;
-    }
-    if (msg.type === "load-error") {
-      setStatus("error");
-      if (active) finish({ name: "LoadError", message: "Python couldn't start. Check the internet connection and refresh the page.", line: null });
-      return;
-    }
-    if (!active) return;
-    if (msg.type === "out") appendText(msg.text);
-    else if (msg.type === "input") askForInput(msg.prompt);
-    else if (msg.type === "done") finish(msg.error);
-  }
+  // ---------- Showing errors ----------
+  const TIPS = {
+    NameError: "Check your spelling and capital letters. Text needs quotes around it.",
+    SyntaxError: "Look for a missing quote, parenthesis ( ), or colon :",
+    IndentationError: "Check the spaces at the start of your lines. Code inside an if or a loop needs 4 spaces.",
+    TypeError: "You might be mixing text and numbers. Try int() or str().",
+    ValueError: "int() only works on whole numbers like 12, not words.",
+    ZeroDivisionError: "You can't divide by zero!",
+  };
 
-  // ---------- Output ----------
-  function appendText(text) {
-    if (!active || !text) return;
-    if (active.waiting) { active.waiting.remove(); active.waiting = null; }
-    active.chars += text.length;
-    active.pre.appendChild(document.createTextNode(text));
-    active.printed = true;
-    if (active.chars > MAX_OUTPUT_CHARS) {
-      stopProgram("Stopped: your program printed too much. Is there a loop that never ends?");
+  function renderError(container, error) {
+    const box = document.createElement("div");
+    box.className = "error-box";
+    const title = document.createElement("p");
+    title.className = "error-title";
+    title.textContent = error.line ? "Error on line " + error.line : "Error";
+    const msg = document.createElement("pre");
+    msg.className = "error-msg";
+    msg.textContent = error.name + ": " + error.message;
+    box.append(title, msg);
+    const tip = TIPS[error.name];
+    if (tip) {
+      const t = document.createElement("p");
+      t.className = "error-tip";
+      t.textContent = "Tip: " + tip;
+      box.appendChild(t);
     }
+    container.appendChild(box);
+    return box;
   }
+  C2C.renderError = renderError;
 
-  function askForInput(prompt) {
-    if (active.waiting) { active.waiting.remove(); active.waiting = null; }
-    if (prompt) active.pre.appendChild(document.createTextNode(prompt));
+  // Adds a typing box for input() to an output area. Calls done(value) on Enter.
+  function addInputBox(pre, prompt, done) {
+    if (prompt) pre.appendChild(document.createTextNode(prompt));
     const box = document.createElement("input");
     box.type = "text";
     box.className = "stdin";
@@ -115,7 +194,7 @@
     box.placeholder = "type here, then Enter";
     box.autocomplete = "off";
     box.spellcheck = false;
-    active.pre.appendChild(box);
+    pre.appendChild(box);
     box.focus();
     box.addEventListener("keydown", (e) => {
       if (e.key !== "Enter") return;
@@ -125,70 +204,18 @@
       span.className = "you";
       span.textContent = value;
       box.replaceWith(span);
-      active.pre.appendChild(document.createTextNode("\n"));
-      active.printed = true;
-      worker.postMessage({ type: "input-reply", value: value });
+      pre.appendChild(document.createTextNode("\n"));
+      done(value);
     });
+    return box;
   }
+  C2C.addInputBox = addInputBox;
 
-  const TIPS = {
-    NameError: "Check your spelling and capital letters. Text needs quotes around it.",
-    SyntaxError: "Look for a missing quote, parenthesis ( ), or colon :",
-    IndentationError: "Check the spaces at the start of your lines. Code inside an if needs 4 spaces.",
-    TypeError: "You might be mixing text and numbers. Try int() or str().",
-    ValueError: "int() only works on whole numbers like 12, not words.",
-    ZeroDivisionError: "You can't divide by zero!",
-  };
+  // ---------- Lesson exercises ----------
+  let active = null; // the exercise currently running
 
-  function finish(error) {
-    if (!active) return;
-    const run = active;
-    active = null;
+  function clearWaiting(run) {
     if (run.waiting) { run.waiting.remove(); run.waiting = null; }
-    run.pre.querySelectorAll("input.stdin").forEach((b) => b.remove());
-    if (error) {
-      const box = document.createElement("div");
-      box.className = "error-box";
-      const title = document.createElement("p");
-      title.className = "error-title";
-      title.textContent = error.line ? "Error on line " + error.line : "Error";
-      const msg = document.createElement("pre");
-      msg.className = "error-msg";
-      msg.textContent = error.name + ": " + error.message;
-      box.append(title, msg);
-      const tip = TIPS[error.name];
-      if (tip) {
-        const t = document.createElement("p");
-        t.className = "error-tip";
-        t.textContent = "Tip: " + tip;
-        box.appendChild(t);
-      }
-      run.out.appendChild(box);
-    } else if (!run.printed) {
-      const note = document.createElement("span");
-      note.className = "muted";
-      note.textContent = "Your program ran, but it didn't print anything. Did you forget print()?";
-      run.pre.appendChild(note);
-    }
-    setRunning(run.ex, false);
-    setAllRunButtons(false);
-  }
-
-  function stopProgram(message) {
-    if (!active) return;
-    const run = active;
-    worker.terminate();
-    run.pre.querySelectorAll("input.stdin").forEach((b) => b.remove());
-    if (run.waiting) { run.waiting.remove(); run.waiting = null; }
-    const note = document.createElement("span");
-    note.className = "muted";
-    note.textContent = "\n" + (message || "Program stopped.");
-    run.pre.appendChild(note);
-    active = null;
-    queued = null;
-    setRunning(run.ex, false);
-    setAllRunButtons(false);
-    startWorker();
   }
 
   function setRunning(ex, running) {
@@ -197,15 +224,19 @@
     if (running) ex.querySelector(".btn-stop").focus();
   }
   function setAllRunButtons(disabled) {
-    document.querySelectorAll(".btn-run").forEach((b) => { b.disabled = disabled; });
+    document.querySelectorAll(".exercise .btn-run").forEach((b) => { b.disabled = disabled; });
   }
 
-  function sendRun(run) {
-    worker.postMessage({ type: "run", code: run.code });
+  function endExercise(run) {
+    if (active === run) active = null;
+    clearWaiting(run);
+    run.pre.querySelectorAll("input.stdin").forEach((b) => b.remove());
+    setRunning(run.ex, false);
+    setAllRunButtons(false);
   }
 
   function runExercise(ex) {
-    if (active) return;
+    if (active || Python.isBusy()) return;
     const editor = ex.querySelector("textarea.editor");
     const out = ex.querySelector(".output");
     const pre = out.querySelector(".output-text");
@@ -214,13 +245,49 @@
     pre.textContent = "";
     const waiting = document.createElement("span");
     waiting.className = "muted";
-    waiting.textContent = ready ? "Running…" : "Starting Python… (the first time can take a few seconds)";
+    waiting.textContent = Python.isReady() ? "Running…" : "Starting Python… (the first time can take a few seconds)";
     pre.appendChild(waiting);
-    active = { ex, out, pre, code: editor.value, printed: false, chars: 0, waiting };
+
+    const run = { ex, out, pre, printed: false, chars: 0, waiting };
+    active = run;
     setAllRunButtons(true);
     setRunning(ex, true);
-    if (ready) sendRun(active);
-    else queued = active;
+
+    Python.run({
+      code: editor.value,
+      onText(text) {
+        if (!text) return;
+        clearWaiting(run);
+        run.chars += text.length;
+        pre.appendChild(document.createTextNode(text));
+        run.printed = true;
+        if (run.chars > MAX_OUTPUT_CHARS) Python.stop("too-much");
+      },
+      onInput(prompt, reply) {
+        clearWaiting(run);
+        addInputBox(pre, prompt, (value) => { run.printed = true; reply(value); });
+      },
+      onDone(error) {
+        endExercise(run);
+        if (error) {
+          renderError(out, error);
+        } else if (!run.printed) {
+          const note = document.createElement("span");
+          note.className = "muted";
+          note.textContent = "Your program ran, but it didn't print anything. Did you forget print()?";
+          pre.appendChild(note);
+        }
+      },
+      onStopped(reason) {
+        endExercise(run);
+        const note = document.createElement("span");
+        note.className = "muted";
+        note.textContent = "\n" + (reason === "too-much"
+          ? "Stopped: your program printed too much. Is there a loop that never ends?"
+          : "Program stopped.");
+        pre.appendChild(note);
+      },
+    });
   }
 
   // ---------- Editors ----------
@@ -234,18 +301,9 @@
     }
   }
 
-  function setupEditor(el, saveKey) {
-    const starter = el.value;
-    el.dataset.starter = starter;
-    const saved = storageGet(saveKey);
-    if (saved !== null) el.value = saved;
-
-    let timer = null;
-    el.addEventListener("input", () => {
-      clearTimeout(timer);
-      timer = setTimeout(() => storageSet(saveKey, el.value), 300);
-    });
-
+  // Makes a textarea behave like a code editor: Tab indents, Enter keeps the
+  // indent (and adds one after a colon), Ctrl+Enter calls onRun.
+  function enhanceEditor(el, onRun) {
     el.addEventListener("keydown", (e) => {
       if (e.key === "Escape") { el.dataset.escaped = "1"; return; }
       if (e.key === "Tab") {
@@ -266,8 +324,7 @@
       delete el.dataset.escaped;
       if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
-        const ex = el.closest(".exercise");
-        if (ex) runExercise(ex);
+        if (onRun) onRun();
         return;
       }
       if (e.key === "Enter" && !e.shiftKey && !e.altKey) {
@@ -278,17 +335,30 @@
         if (indent) { e.preventDefault(); insertText(el, "\n" + indent); }
       }
     });
-    return starter;
+  }
+  C2C.enhanceEditor = enhanceEditor;
+
+  function setupSavedEditor(el, saveKey, onRun) {
+    const starter = el.value;
+    el.dataset.starter = starter;
+    const saved = storageGet(saveKey);
+    if (saved !== null) el.value = saved;
+    let timer = null;
+    el.addEventListener("input", () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => storageSet(saveKey, el.value), 300);
+    });
+    enhanceEditor(el, onRun);
   }
 
   document.querySelectorAll(".exercise").forEach((ex) => {
     const id = ex.dataset.ex;
     const editor = ex.querySelector("textarea.editor");
     const saveKey = STORE_PREFIX + id;
-    setupEditor(editor, saveKey);
+    setupSavedEditor(editor, saveKey, () => runExercise(ex));
 
     ex.querySelector(".btn-run").addEventListener("click", () => runExercise(ex));
-    ex.querySelector(".btn-stop").addEventListener("click", () => stopProgram());
+    ex.querySelector(".btn-stop").addEventListener("click", () => Python.stop("stopped"));
 
     const hintBtn = ex.querySelector(".btn-hint");
     const hint = ex.querySelector(".hint");
@@ -324,5 +394,5 @@
     }
   });
 
-  startWorker();
+  Python.start();
 })();
