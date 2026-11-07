@@ -6,7 +6,12 @@
   const C2C = window.C2C;
   const DATA = window.C2C_GAMES;
   const app = document.getElementById("games-app");
-  if (!C2C || !DATA || !app) return;
+  if (!app) return;
+  if (!C2C || !C2C.Python || !DATA) {
+    // Usually means the browser kept an old copy of a file after an update.
+    app.innerHTML = '<p class="not-yet">The Game Room didn\'t finish loading. Refresh the page with <b>Ctrl + Shift + R</b> (or <b>Cmd + Shift + R</b> on a Mac).</p>';
+    return;
+  }
   const Python = C2C.Python;
 
   const HINT_PENALTY_MS = 30000;

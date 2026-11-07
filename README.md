@@ -89,6 +89,11 @@ To fix a typo or add a lesson, edit `index.html`, then upload it again on GitHub
 open the repository, click **Add file**, then **Upload files**, and drag in the
 new version. The live site updates in a minute or two.
 
+**If you change `styles.css`, `app.js`, `games.js`, or `game-data.js`,** also bump
+the version number where `index.html` loads it (for example, change
+`games.js?v=3` to `games.js?v=4`) and upload `index.html` too. Otherwise browsers
+can keep the old copy for up to 10 minutes and the page may not load correctly.
+
 Each tab is a `<section class="tab-panel">` in `index.html`, and each exercise is
 an `<article class="exercise">`. To add a new tab, copy an existing section, give
 it a new `id` (like `tab-lists`), and add a matching link in the sidebar
