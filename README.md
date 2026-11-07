@@ -12,7 +12,7 @@ installs. Live at **learn.commit2code.org**.
 | `styles.css` | Colors, fonts, and layout |
 | `app.js` | Tabs, Run/Stop buttons, hints, autosave, and Download |
 | `py-worker.js` | Runs the students' Python code (using Pyodide) |
-| `games.js` | The Game Room: Debug Race, Escape Room, Coding Relay, and the projector scoreboard |
+| `games.js` | The games (Debug Race, Escape Room, Coding Relay) and the projector scoreboard |
 | `game-data.js` | Every game round, sorted by topic. **This is the file to edit to add rounds.** |
 | `live.js` | Live games: the Join a game tab and the teacher's live leaderboard (uses Firebase) |
 | `database.rules.json` | A copy of the Firebase security rules (with the teacher email left out) |
@@ -30,10 +30,11 @@ Open the site **on one of the club's computers** and run one exercise.
   blocking `cdn.jsdelivr.net`. Ask whoever manages the network to allow that
   address.
 
-## The Game Room
+## Practice games
 
-Open **Game Room** in the sidebar. There are three games, and each one works
-with any topic or a mix of topics:
+Open **Practice games** in the sidebar (under **More**). Students can play these
+anytime, alone or as a team. In class, live games (below) are the main way to play.
+There are three games, and each one works with any topic or a mix of topics:
 
 - **Debug Race**: teams fix broken code. The site checks each fix automatically.
 - **Escape Room**: teams predict what code prints to unlock each door. Easy doors
@@ -53,7 +54,7 @@ on the scoreboard to confirm it's real before awarding points.
 
 ### Projector scoreboard
 
-In the Game Room, click **Projector scoreboard** on the computer hooked up to
+In Practice games, click **Projector scoreboard** on the computer hooked up to
 the projector (or go to `#games/scoreboard`).
 
 - Click a team name to rename it. Add up to 8 teams.
@@ -70,9 +71,12 @@ the projector (or go to `#games/scoreboard`).
 Students join from their own computers, and the projector's leaderboard updates
 by itself. No student accounts are needed.
 
-1. On the projector computer, open the **Game Room** and click **Host a live
-   game**. Sign in with the teacher email and password (from Firebase).
+1. On the projector computer, open **Practice games** and click **Host a live
+   game** (or use the "Teacher? Host a live game" link at the bottom of the Join
+   page). Sign in with the teacher email and password (from Firebase).
 2. Pick the game, topics, number of rounds, and scoring, then click **Create game**.
+   For a **Coding Relay**, pick the challenge and time per turn. Every team gets the
+   same challenge, and each team joins on one computer with their team name.
 3. Students click **Join a game** (top right of every page), type the 5-letter
    code and their first name, or scan the QR code on the screen.
 4. Click **Start game**. Everyone gets the same rounds in the same order, and

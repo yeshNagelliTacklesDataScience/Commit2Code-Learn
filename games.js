@@ -9,7 +9,7 @@
   if (!app) return;
   if (!C2C || !C2C.Python || !DATA) {
     // Usually means the browser kept an old copy of a file after an update.
-    app.innerHTML = '<p class="not-yet">The Game Room didn\'t finish loading. Refresh the page with <b>Ctrl + Shift + R</b> (or <b>Cmd + Shift + R</b> on a Mac).</p>';
+    app.innerHTML = '<p class="not-yet">The games didn\'t finish loading. Refresh the page with <b>Ctrl + Shift + R</b> (or <b>Cmd + Shift + R</b> on a Mac).</p>';
     return;
   }
   const Python = C2C.Python;
@@ -330,7 +330,7 @@
     updateLink();
     app.replaceChildren(
       h("div", { class: "game-setup" },
-        h("a", { class: "back-link", href: "#games", text: "← All games" }),
+        h("a", { class: "back-link", href: "#games", text: "← All practice games" }),
         h("div", { class: "setup-head" }, h("span", { class: "game-card-icon" }, icon(g.icon, 28)), h("h2", { text: g.title })),
         h("p", { class: "setup-blurb", text: g.blurb }),
         h("ol", { class: "how-list" }, g.how.map((t) => h("li", { text: t }))),
@@ -470,7 +470,7 @@
           ? h("p", { class: "finish-live", text: s.live.finishNote || "Look at the big screen to see where you placed!" })
           : h("div", { class: "actions" },
             h("button", { type: "button", class: "btn-run", onclick: onAgain, text: "Play again" }),
-            h("a", { class: "btn-ghost", href: "#games", text: "Back to all games" }))));
+            h("a", { class: "btn-ghost", href: "#games", text: "Back to practice games" }))));
   }
 
   // ----------------------------------------------------------- DEBUG RACE
@@ -695,11 +695,18 @@
   }
 
   // ---------------------------------------------------------- CODING RELAY
-  function startRelay(team, players, turnSeconds, challenge, routeKey) {
-    const s = newSession("relay", team, [challenge.topic], routeKey);
+  function startRelay(team, players, turnSeconds, challenge, routeKey, opts) {
+    const o = opts || {};
+    const s = newSession("relay", team, [challenge.topic], routeKey, o);
     s.players = players;
     s.turn = 0;
     s.turnSeconds = turnSeconds;
+    // Live relays keep the team's code in this tab, so a refresh doesn't lose it.
+    const saveKey = o.saveKey ? "c2c-relay-" + o.saveKey : null;
+    const loadSaved = () => { try { return saveKey ? JSON.parse(window.sessionStorage.getItem(saveKey)) : null; } catch (e) { return null; } };
+    const storeSaved = (code) => { try { if (saveKey) window.sessionStorage.setItem(saveKey, JSON.stringify({ code: code, turn: s.turn })); } catch (e) { /* ignore */ } };
+    const saved = loadSaved();
+    if (saved) s.turn = saved.turn || 0;
 
     const progress = h("p", { class: "game-progress", text: challenge.title });
     const bar = gameBar(s, "Coding Relay", progress);
@@ -712,7 +719,8 @@
       h("div", {}, turnName, turnMsg), h("div", { class: "turn-right" }, turnTimer, doneBtn));
 
     const starter = "# Team " + team + ": " + challenge.title + "\n# Each player adds ONE line below.\n";
-    const editor = h("textarea", { class: "editor", id: "relay-editor", rows: 12, spellcheck: false, autocapitalize: "off", autocomplete: "off", value: starter });
+    const editor = h("textarea", { class: "editor", id: "relay-editor", rows: 12, spellcheck: false, autocapitalize: "off", autocomplete: "off", value: saved && saved.code ? saved.code : starter });
+    editor.addEventListener("input", () => storeSaved(editor.value));
     const out = h("div", { class: "output", hidden: true }, h("p", { class: "output-label", text: "Output" }));
     const outPre = h("pre", { class: "output-text", attrs: { "aria-live": "polite" } });
     out.appendChild(outPre);
@@ -752,6 +760,7 @@
 
     function nextTurn(message) {
       s.turn++;
+      storeSaved(editor.value);
       beginTurn();
       if (message) {
         turnMsg.textContent = message + " Add one line, then press Done.";
@@ -844,10 +853,16 @@
           editor.readOnly = true;
           doneBtn.disabled = true;
           submitBtn.disabled = true;
-          results.replaceChildren(list, solvedBanner("Program complete in " + fmtTime(elapsed(s)) + "!", code3),
-            h("div", { class: "actions" },
-              h("button", { type: "button", class: "btn-run", text: "Play again", onclick: () => startRelay(team, players, turnSeconds, challenge, routeKey) }),
-              h("a", { class: "btn-ghost", href: "#games", text: "Back to all games" })));
+          if (s.live) {
+            if (s.live.onFinish) s.live.onFinish({ done: 1, solved: 1, penalty: 0, finished: Math.max(1, Math.round(elapsed(s))) });
+            results.replaceChildren(list, solvedBanner("Program complete in " + fmtTime(elapsed(s)) + "!", null,
+              h("p", { class: "finish-live-small", text: "Look at the big screen to see where your team placed!" })));
+          } else {
+            results.replaceChildren(list, solvedBanner("Program complete in " + fmtTime(elapsed(s)) + "!", code3),
+              h("div", { class: "actions" },
+                h("button", { type: "button", class: "btn-run", text: "Play again", onclick: () => startRelay(team, players, turnSeconds, challenge, routeKey) }),
+                h("a", { class: "btn-ghost", href: "#games", text: "Back to practice games" })));
+          }
           s.finished = true;
           clearInterval(s.tick);
         } else {
@@ -873,6 +888,18 @@
             editor,
             h("div", { class: "actions" }, testBtn, stopBtn, submitBtn),
             out, results))));
+    if (o.resume && o.resume.done >= 1) {
+      // This team already finished before a refresh.
+      s.finished = true;
+      clearInterval(s.tick);
+      editor.readOnly = true;
+      doneBtn.disabled = true;
+      submitBtn.disabled = true;
+      banner.hidden = true;
+      results.replaceChildren(solvedBanner("Your team already finished this program!", null,
+        h("p", { class: "finish-live-small", text: "Look at the big screen to see where your team placed!" })));
+      return;
+    }
     beginTurn();
   }
 
@@ -1112,6 +1139,7 @@
   // Used by live.js to play Debug Race / Escape Room inside the Join tab.
   C2C.Games = {
     GAMES: GAMES,
+    RELAY: DATA.RELAY,
     topicLabel: topicLabel,
     topicsText: topicsText,
     startLive(o) {
@@ -1123,7 +1151,11 @@
         live: { onProgress: o.onProgress, onFinish: o.onFinish },
       };
       if (o.type === "escape") startEscape(o.name, o.topics, o.count, "live", opts);
-      else startDebug(o.name, o.topics, o.count, "live", opts);
+      else if (o.type === "relay") {
+        const challenge = DATA.RELAY.find((r) => r.id === o.challenge) || DATA.RELAY[0];
+        opts.saveKey = o.saveKey;
+        startRelay(o.name, o.players && o.players.length ? o.players : ["Player 1", "Player 2", "Player 3"], o.turnSeconds || 0, challenge, "live", opts);
+      } else startDebug(o.name, o.topics, o.count, "live", opts);
     },
     // The teacher ended the game while this player was still going.
     forceEnd(message) {
@@ -1131,10 +1163,15 @@
       if (!s || !s.live) return;
       if (!s.finished) {
         if (Python.isBusy() && s.running) Python.stop("left");
+        clearInterval(s.turnTick);
         s.live.finishNote = message;
-        const total = s.rounds ? s.rounds.length : s.rooms.length;
-        const solved = s.solved ? s.solved.length : s.done;
-        finishScreen(s, "Time's up!", [[solved + " / " + total, s.type === "escape" ? "Doors unlocked" : "Rounds fixed"]], null, null);
+        if (s.type === "relay") {
+          finishScreen(s, "Time's up!", [["Not yet", "Program finished"]], null, null);
+        } else {
+          const total = s.rounds ? s.rounds.length : s.rooms.length;
+          const solved = s.solved ? s.solved.length : s.done;
+          finishScreen(s, "Time's up!", [[solved + " / " + total, s.type === "escape" ? "Doors unlocked" : "Rounds fixed"]], null, null);
+        }
       }
       session = null;
     },

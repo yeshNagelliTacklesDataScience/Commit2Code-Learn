@@ -133,6 +133,10 @@
   function gameSummary(room) {
     const g = C2C.Games.GAMES[room.game];
     const topics = String(room.topics || "").split("+").filter(Boolean);
+    if (room.game === "relay") {
+      const ch = C2C.Games.RELAY.find((r) => r.id === room.challenge);
+      return "Coding Relay · " + (ch ? ch.title : "Team challenge") + " · " + C2C.Games.topicsText(topics);
+    }
     return (g ? g.title : "Game") + " · " + C2C.Games.topicsText(topics) + " · " + room.count + (room.game === "escape" ? " doors" : " rounds");
   }
 
@@ -157,7 +161,7 @@
       document.getElementById("tab-join").classList.remove("is-playing");
       const saved = savedPlayer.get();
       const codeInput = h("input", { type: "text", class: "text-input join-code", id: "join-code", maxLength: 5, autocomplete: "off", autocapitalize: "characters", spellcheck: false, placeholder: "ABCDE", value: (prefill && prefill.code) || "" });
-      const nameInput = h("input", { type: "text", class: "text-input", id: "join-name", maxLength: 24, autocomplete: "off", placeholder: "First name or team name", value: (prefill && prefill.name) || (saved && saved.name) || "" });
+      const nameInput = h("input", { type: "text", class: "text-input", id: "join-name", maxLength: 24, autocomplete: "off", placeholder: "First name, or team name for a relay", value: (prefill && prefill.name) || (saved && saved.name) || "" });
       const msg = h("p", { class: "join-msg", attrs: { role: "alert" }, text: message || "" });
       const btn = h("button", { type: "submit", class: "btn-run btn-big", text: "Join" });
       codeInput.addEventListener("input", () => {
@@ -167,8 +171,8 @@
       });
       const form = h("form", { class: "join-card", attrs: { novalidate: "" } },
         h("div", { class: "field" }, h("label", { class: "field-label", attrs: { for: "join-code" }, text: "Game code" }), codeInput),
-        h("div", { class: "field" }, h("label", { class: "field-label", attrs: { for: "join-name" }, text: "Your name" }), nameInput),
-        h("p", { class: "join-note", text: "Use your first name or your team's name only." }),
+        h("div", { class: "field" }, h("label", { class: "field-label", attrs: { for: "join-name" }, text: "Your name (or team name)" }), nameInput),
+        h("p", { class: "join-note", text: "Use your first name or your team's name only. For a Coding Relay, one person types the team name for the whole team." }),
         msg,
         h("div", { class: "actions" }, btn));
       form.addEventListener("submit", (e) => {
@@ -186,7 +190,7 @@
         });
       });
 
-      const nodes = [form];
+      const nodes = [form, h("p", { class: "teacher-link" }, "Teacher? ", h("a", { href: "#games/host", text: "Host a live game" }))];
       if (saved && saved.code && !(prefill && prefill.code)) {
         nodes.unshift(h("div", { class: "rejoin" },
           h("p", {}, "Were you in game ", h("b", { text: saved.code }), " as ", h("b", { text: saved.name }), "?"),
@@ -276,13 +280,47 @@
 
     function showLobby(room) {
       const count = room.players ? Object.keys(room.players).length : 0;
-      render(h("div", { class: "lobby-card" },
-        h("p", { class: "eyebrow-dark", text: "You're in!" }),
+      const relay = room.game === "relay";
+      const countText = count + (relay ? (count === 1 ? " team" : " teams") : (count === 1 ? " player" : " players")) + " in the game";
+      const existing = joinApp.querySelector(".lobby-card");
+      if (existing && existing.dataset.game === room.game) {
+        existing.querySelector(".lobby-count").textContent = countText;
+        existing.querySelector(".lobby-info").textContent = gameSummary(room);
+        return;
+      }
+      let team = null;
+      if (relay) {
+        const prev = state.team || { count: 3, names: "" };
+        const countSel = h("select", { class: "select", id: "team-count" }, [2, 3, 4, 5, 6].map((n) => h("option", { value: String(n), text: n + " players", selected: n === prev.count })));
+        const names = h("input", { type: "text", class: "text-input", id: "team-names", placeholder: "Maya, Jordan, Leo", autocomplete: "off", value: prev.names });
+        const sync = () => { state.team = { count: Number(countSel.value), names: names.value }; };
+        countSel.addEventListener("change", sync);
+        names.addEventListener("input", sync);
+        sync();
+        team = h("div", { class: "team-setup" },
+          h("p", { class: "field-label", text: "Who's on your team? You'll take turns in this order." }),
+          h("div", { class: "setup-fields" },
+            h("div", { class: "field" }, h("label", { class: "field-label", attrs: { for: "team-count" }, text: "Players" }), countSel),
+            h("div", { class: "field field-wide" }, h("label", { class: "field-label", attrs: { for: "team-names" }, text: "Names (optional, separated by commas)" }), names)));
+      }
+      const card = h("div", { class: "lobby-card" },
+        h("p", { class: "eyebrow-dark", text: relay ? "Your team is in!" : "You're in!" }),
         h("h2", { class: "lobby-name", text: state.name }),
         h("p", { class: "lobby-wait" }, h("span", { class: "pulse-dot", attrs: { "aria-hidden": "true" } }), "Waiting for your teacher to start the game…"),
         h("p", { class: "lobby-info", text: gameSummary(room) }),
-        h("p", { class: "lobby-count", text: count + (count === 1 ? " player" : " players") + " in the game" }),
-        h("div", { class: "actions" }, h("button", { type: "button", class: "btn-ghost", text: "Leave game", onclick: leave }))));
+        h("p", { class: "lobby-count", text: countText }),
+        team,
+        h("div", { class: "actions" }, h("button", { type: "button", class: "btn-ghost", text: "Leave game", onclick: leave })));
+      card.dataset.game = room.game;
+      render(card);
+    }
+
+    function teamPlayers() {
+      const t = state.team || { count: 3, names: "" };
+      const typed = String(t.names || "").split(",").map((x) => x.trim()).filter(Boolean);
+      const list = [];
+      for (let i = 0; i < t.count; i++) list.push(typed[i] || "Player " + (i + 1));
+      return list;
     }
 
     function leave() {
@@ -311,6 +349,10 @@
         seed: room.seed,
         startedAt: room.startedAt - serverOffset,
         resume: me ? { done: me.done || 0, solved: me.solved || 0, penalty: me.penalty || 0 } : null,
+        challenge: room.challenge,
+        turnSeconds: room.turnSeconds || 0,
+        players: room.game === "relay" ? teamPlayers() : null,
+        saveKey: state.code + "-" + room.startedAt,
         onProgress: (p) => { if (state) state.playerRef.update(p).catch(() => {}); },
         onFinish: (f) => {
           if (!state || finished) return;
@@ -357,7 +399,7 @@
     let lastFocus = null;
 
     function prefs() {
-      return Object.assign({ game: "debug", topics: ["loops"], count: 5, perRound: 1, bonus: true }, readJSON(HOST_PREFS_KEY) || {});
+      return Object.assign({ game: "debug", topics: ["loops"], count: 5, perRound: 1, bonus: true, challenge: "", turnSeconds: 60 }, readJSON(HOST_PREFS_KEY) || {});
     }
 
     function build() {
@@ -483,22 +525,48 @@
       const p = prefs();
       const gameSel = h("select", { class: "live-input", id: "live-game" },
         h("option", { value: "debug", text: "Debug Race", selected: p.game === "debug" }),
-        h("option", { value: "escape", text: "Escape Room", selected: p.game === "escape" }));
+        h("option", { value: "escape", text: "Escape Room", selected: p.game === "escape" }),
+        h("option", { value: "relay", text: "Coding Relay (teams)", selected: p.game === "relay" }));
       const chosen = new Set(p.topics);
+      const challengeSel = h("select", { class: "live-input", id: "live-challenge" });
+      const fillChallenges = () => {
+        const keep = challengeSel.value || p.challenge;
+        const list = DATA.RELAY.filter((r) => chosen.has(r.topic));
+        challengeSel.replaceChildren(h("option", { value: "", text: "Surprise (random)" }),
+          ...list.map((r) => h("option", { value: r.id, text: r.title + " (" + C2C.Games.topicLabel(r.topic) + ")", selected: r.id === keep })));
+      };
       const pills = DATA.TOPICS.map((t) => {
         const box = h("input", { type: "checkbox", id: "live-topic-" + t.id, checked: chosen.has(t.id) });
-        box.addEventListener("change", () => { if (box.checked) chosen.add(t.id); else chosen.delete(t.id); });
+        box.addEventListener("change", () => { if (box.checked) chosen.add(t.id); else chosen.delete(t.id); fillChallenges(); });
         return h("label", { class: "live-pill", attrs: { for: "live-topic-" + t.id } }, box, h("span", { text: t.label }));
       });
+      fillChallenges();
       const countSel = h("select", { class: "live-input", id: "live-count" }, [3, 5, 8].map((n) => h("option", { value: String(n), text: String(n), selected: n === p.count })));
+      const turnSel = h("select", { class: "live-input", id: "live-turn" },
+        [[30, "30 seconds"], [60, "1 minute"], [90, "90 seconds"], [0, "No timer"]].map(([v, t]) => h("option", { value: String(v), text: t, selected: v === p.turnSeconds })));
       const perSel = h("select", { class: "live-input", id: "live-per" },
         [[1, "1 point"], [2, "2 points"], [0, "No points"]].map(([v, t]) => h("option", { value: String(v), text: t, selected: v === p.perRound })));
       const bonusBox = h("input", { type: "checkbox", id: "live-bonus", checked: p.bonus });
       const msg = h("p", { class: "live-msg", attrs: { role: "alert" } });
+      const countField = h("div", { class: "live-field" }, h("label", { attrs: { for: "live-count" }, text: "Rounds / doors" }), countSel);
+      const challengeField = h("div", { class: "live-field" }, h("label", { attrs: { for: "live-challenge" }, text: "Challenge (every team gets the same one)" }), challengeSel);
+      const turnField = h("div", { class: "live-field" }, h("label", { attrs: { for: "live-turn" }, text: "Time per turn" }), turnSel);
+      const perLabel = h("label", { attrs: { for: "live-per" } });
+      const relayNote = h("p", { class: "live-p", text: "Each team joins on one computer with their team name, then players take turns adding one line." });
+      const syncGame = () => {
+        const relay = gameSel.value === "relay";
+        countField.hidden = relay;
+        challengeField.hidden = !relay;
+        turnField.hidden = !relay;
+        relayNote.hidden = !relay;
+        perLabel.textContent = relay ? "Points for finishing the program" : "Points for each round solved";
+      };
+      gameSel.addEventListener("change", syncGame);
       const createBtn = h("button", { type: "button", class: "sb-btn sb-btn-main live-big", text: "Create game", onclick: () => {
         const topics = DATA.TOPICS.map((t) => t.id).filter((id) => chosen.has(id));
         if (!topics.length) { msg.textContent = "Pick at least one topic."; return; }
-        const settings = { game: gameSel.value, topics: topics, count: Number(countSel.value), perRound: Number(perSel.value), bonus: bonusBox.checked };
+        const settings = { game: gameSel.value, topics: topics, count: Number(countSel.value), perRound: Number(perSel.value), bonus: bonusBox.checked, challenge: challengeSel.value, turnSeconds: Number(turnSel.value) };
+        if (settings.game === "relay" && !DATA.RELAY.some((r) => topics.includes(r.topic))) { msg.textContent = "There are no relay challenges for those topics yet."; return; }
         C2C.storage.set(HOST_PREFS_KEY, JSON.stringify(settings));
         createBtn.disabled = true;
         createRoom(settings).catch((e) => { createBtn.disabled = false; msg.textContent = friendlyError(e); });
@@ -513,12 +581,16 @@
           h("h2", { class: "live-h2", text: "Start a live game" }),
           h("div", { class: "live-grid" },
             h("div", { class: "live-field" }, h("label", { attrs: { for: "live-game" }, text: "Game" }), gameSel),
-            h("div", { class: "live-field" }, h("label", { attrs: { for: "live-count" }, text: "Rounds / doors" }), countSel),
-            h("div", { class: "live-field" }, h("label", { attrs: { for: "live-per" }, text: "Points for each round solved" }), perSel)),
+            countField,
+            challengeField,
+            turnField,
+            h("div", { class: "live-field" }, perLabel, perSel)),
           h("fieldset", { class: "live-fieldset" }, h("legend", { text: "Topics" }), h("div", { class: "live-pills" }, pills)),
-          h("label", { class: "live-check", attrs: { for: "live-bonus" } }, bonusBox, h("span", { text: "Bonus for finishing everything: 1st +5, 2nd +3, 3rd +2" })),
+          h("label", { class: "live-check", attrs: { for: "live-bonus" } }, bonusBox, h("span", { text: "Bonus for finishing first: 1st +5, 2nd +3, 3rd +2" })),
+          relayNote,
           msg,
           h("div", { class: "live-actions" }, createBtn)));
+      syncGame();
     }
 
     function newCode() {
@@ -537,9 +609,19 @@
         if (!existing.exists()) code = c;
       }
       if (!code) throw new Error("Couldn't make a game code. Try again.");
-      const pool = (settings.game === "escape" ? DATA.ESCAPE : DATA.DEBUG).filter((r) => settings.topics.includes(r.topic));
-      settings.count = Math.max(1, Math.min(settings.count, pool.length));
-      await fb.database().ref("rooms/" + code).set({
+      const extra = {};
+      if (settings.game === "relay") {
+        const list = DATA.RELAY.filter((r) => settings.topics.includes(r.topic));
+        const pick = list.find((r) => r.id === settings.challenge) || list[Math.floor(Math.random() * list.length)];
+        extra.challenge = pick.id;
+        extra.turnSeconds = settings.turnSeconds;
+        settings.topics = [pick.topic];
+        settings.count = 1;
+      } else {
+        const pool = (settings.game === "escape" ? DATA.ESCAPE : DATA.DEBUG).filter((r) => settings.topics.includes(r.topic));
+        settings.count = Math.max(1, Math.min(settings.count, pool.length));
+      }
+      await fb.database().ref("rooms/" + code).set(Object.assign({
         host: user.uid,
         createdAt: TIMESTAMP(),
         status: "lobby",
@@ -549,7 +631,7 @@
         perRound: settings.perRound,
         bonus: settings.bonus,
         seed: Math.floor(Math.random() * 2147483646) + 1,
-      });
+      }, extra));
       attach(code);
     }
 
@@ -649,7 +731,7 @@
             h("p", { class: "live-join-sub", text: gameSummary(room) })),
           qrNode(joinUrl(roomCode))),
         h("div", { class: "live-players" },
-          h("p", { class: "live-count", text: players.length + (players.length === 1 ? " player joined" : " players joined") }),
+          h("p", { class: "live-count", text: players.length + (room.game === "relay" ? (players.length === 1 ? " team joined" : " teams joined") : (players.length === 1 ? " player joined" : " players joined")) }),
           h("div", { class: "live-chips" },
             players.length ? players.map((p) => h("span", { class: "live-chip" + (p.online === false ? " offline" : "") },
               h("span", { text: p.name }),
@@ -679,7 +761,7 @@
             h("span", { class: "live-row-name", text: p.name }),
             h("span", { class: "live-progress", attrs: { "aria-label": p.done + " of " + total + " done" } },
               h("span", { class: "live-progress-fill", attrs: { style: "width:" + Math.round((Math.min(p.done, total) / total) * 100) + "%" } })),
-            h("span", { class: "live-row-status", text: p.finished ? (p.place ? ["", "1st", "2nd", "3rd"][p.place] || "Done" : "Done") + " · " + fmtTime(p.finished) : p.done + " / " + total }),
+            h("span", { class: "live-row-status", text: p.finished ? (p.place ? ["", "1st", "2nd", "3rd"][p.place] || "Done" : "Done") + " · " + fmtTime(p.finished) : room.game === "relay" ? "Building…" : p.done + " / " + total }),
             h("span", { class: "live-points", text: p.points + " pts" }),
             h("button", { type: "button", class: "live-row-x", attrs: { "aria-label": "Remove " + p.name }, onclick: () => removePlayer(p), text: "×" })))),
         h("div", { class: "sb-bottom" },
@@ -687,7 +769,7 @@
             h("button", { type: "button", class: "sb-btn sb-btn-main", id: "live-end", text: "End game", onclick: () => {
               if (window.confirm("End the game for everyone and show the results?")) roomRef.update({ status: "ended", endedAt: TIMESTAMP() }).catch(() => {});
             } })),
-          h("p", { class: "sb-keys", text: "Points: " + (room.perRound || 0) + " per round solved" + (room.bonus ? " · finishing bonus 1st +5, 2nd +3, 3rd +2" : "") })));
+          h("p", { class: "sb-keys", text: "Points: " + (room.perRound || 0) + (room.game === "relay" ? " for finishing" : " per round solved") + (room.bonus ? " · finishing bonus 1st +5, 2nd +3, 3rd +2" : "") })));
     }
 
     function drawResults() {
@@ -710,7 +792,7 @@
           list.slice(3).map((p, i) => h("li", { class: "live-row" },
             h("span", { class: "live-rank", text: String(i + 4) }),
             h("span", { class: "live-row-name", text: p.name }),
-            h("span", { class: "live-row-status", text: p.done + " / " + room.count }),
+            h("span", { class: "live-row-status", text: room.game === "relay" ? (p.finished ? "Finished" : "Not finished") : p.done + " / " + room.count }),
             h("span", { class: "live-points", text: p.points + " pts" })))) : null,
         list.length ? null : h("p", { class: "live-status", text: "Nobody played this game." }),
         h("div", { class: "sb-bottom" },

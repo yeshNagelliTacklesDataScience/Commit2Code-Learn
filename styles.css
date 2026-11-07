@@ -435,3 +435,9 @@ body.sb-open { overflow: hidden; }
   .join-card, .lobby-card { padding: 20px; }
   .lobby-name { font-size: 36px; }
 }
+
+/* Join link stands out in the sidebar; relay team setup */
+.tab-link-join:not([aria-current="page"]) { border-color: var(--orange); background: #fff3e0; }
+.teacher-link { font-size: 15px; color: var(--muted); }
+.team-setup { width: 100%; display: flex; flex-direction: column; gap: 10px; background: #eef3f9; border: 2px solid #c9d8ea; border-radius: 16px; padding: 16px; }
+.finish-live-small { font-weight: 800; color: #1e4d20; }
