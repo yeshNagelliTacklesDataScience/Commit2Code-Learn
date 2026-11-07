@@ -334,3 +334,104 @@ body.sb-open { overflow: hidden; }
   .sb-time { font-size: 52px; }
   .sb-score { font-size: 88px; }
 }
+
+/* ===================== Join a live game ===================== */
+.btn-pill-ghost { background: transparent; color: var(--cream); border: 2px solid #3a4560; }
+.btn-pill-ghost:hover { color: var(--cream); border-color: var(--cream); }
+#join-app { display: flex; flex-direction: column; gap: 20px; }
+.join-card, .lobby-card, .rejoin { background: var(--card); border: 2px solid var(--line); border-radius: 20px; padding: 28px; display: flex; flex-direction: column; gap: 16px; max-width: 560px; }
+.join-code { font-family: var(--mono); font-size: 34px; font-weight: 700; letter-spacing: 8px; text-transform: uppercase; text-align: center; max-width: 280px; min-height: 64px; }
+.join-note { font-size: 15px; color: var(--muted); }
+.join-msg { color: #a33a00; font-weight: 700; }
+.join-msg:empty { display: none; }
+.rejoin { flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: wrap; background: #eef3f9; border-color: #c9d8ea; padding: 16px 20px; }
+.lobby-card { align-items: flex-start; }
+.eyebrow-dark { font-size: 14px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--blue); }
+.lobby-name { font-size: 48px; word-break: break-word; }
+.lobby-wait { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 700; }
+.pulse-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--orange); animation: pulse 1.4s infinite; flex: none; }
+@keyframes pulse { 50% { transform: scale(1.5); opacity: 0.5; } }
+.lobby-info, .lobby-count { color: var(--text-soft); }
+.finish-live { font-size: 20px; font-weight: 800; color: var(--orange); }
+.join-play { display: flex; flex-direction: column; gap: 20px; }
+
+/* ===================== Live game host (projector) ===================== */
+.live-dot { width: 18px; height: 18px; border-radius: 50%; background: #ff6b4a; box-shadow: 0 0 0 6px rgba(255, 107, 74, 0.3); }
+.live-status { font-size: 24px; color: #cfd6e6; }
+.live-status.error { color: #ffa8a8; }
+.live-panel { background: #1b2747; border-radius: 24px; padding: 28px; display: flex; flex-direction: column; gap: 16px; max-width: 760px; width: 100%; align-self: center; }
+.live-signin { max-width: 440px; }
+.live-signin label, .live-field label { font-weight: 800; }
+.live-h2 { font-family: var(--display); font-size: 34px; font-weight: 600; }
+.live-p, .live-tip { color: #cfd6e6; }
+.live-tip { font-size: 14px; }
+.live-input { min-height: 48px; border: 2px solid #3d4f80; border-radius: 12px; background: #0f172e; color: #fff; padding: 8px 12px; font-size: 18px; font-family: var(--body); }
+.live-msg { color: #ffa8a8; font-weight: 800; }
+.live-msg:empty { display: none; }
+.live-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.live-big { font-size: 22px; padding: 12px 28px; }
+.live-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+.live-field { display: flex; flex-direction: column; gap: 6px; }
+.live-fieldset { border: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.live-fieldset legend { font-weight: 800; margin-bottom: 8px; }
+.live-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.live-pill { display: inline-flex; align-items: center; gap: 8px; border: 2px solid #3d4f80; border-radius: 999px; padding: 8px 14px; min-height: 44px; font-weight: 700; cursor: pointer; }
+.live-pill:has(input:checked) { background: var(--orange); color: var(--navy); border-color: var(--orange); }
+.live-pill input, .live-check input { width: 18px; height: 18px; accent-color: var(--orange); }
+.live-check { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+.live-resume { background: #2a3a63; border-radius: 16px; padding: 14px 18px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+.live-lobby { display: flex; align-items: center; justify-content: center; gap: 48px; flex-wrap: wrap; }
+.live-join-box { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
+.live-join-label { font-size: 24px; color: #cfd6e6; }
+.live-join-url { font-family: var(--mono); font-size: 34px; font-weight: 700; color: #fff; }
+.live-code { font-family: var(--mono); font-size: 120px; font-weight: 700; letter-spacing: 16px; line-height: 1.1; color: var(--orange); padding-left: 16px; }
+.live-join-sub { font-size: 20px; color: #cfd6e6; }
+.live-qr { width: 260px; height: 260px; background: #fff; border-radius: 20px; padding: 10px; flex: none; }
+.live-qr svg { width: 100%; height: 100%; display: block; }
+.live-players { display: flex; flex-direction: column; align-items: center; gap: 14px; flex: 1; }
+.live-count { font-size: 26px; font-weight: 800; }
+.live-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; max-width: 1200px; }
+.live-chip { display: inline-flex; align-items: center; gap: 6px; background: #fff; color: var(--navy); border-radius: 999px; padding: 6px 8px 6px 18px; font-size: 24px; font-weight: 800; animation: popin 0.3s; }
+.live-chip.offline { opacity: 0.45; }
+@keyframes popin { from { transform: scale(0.6); opacity: 0; } }
+.live-chip-x, .live-row-x { background: transparent; border: none; color: inherit; opacity: 0.5; font-size: 24px; width: 40px; height: 40px; border-radius: 50%; line-height: 1; }
+.live-chip-x:hover, .live-row-x:hover { opacity: 1; background: rgba(0, 0, 0, 0.1); }
+.live-empty { font-size: 22px; color: #aab4cc; }
+
+.live-mini-code { font-size: 20px; color: #cfd6e6; }
+.live-mini-code b { font-family: var(--mono); color: var(--orange); letter-spacing: 3px; }
+.live-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px 24px; }
+.live-game-name, .live-finished-count { font-size: 22px; font-weight: 800; color: #cfd6e6; }
+.live-board { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.live-row { display: grid; grid-template-columns: 56px minmax(140px, 1.2fr) minmax(120px, 2fr) 150px 110px 44px; align-items: center; gap: 16px; background: #1b2747; border-radius: 16px; padding: 10px 16px; font-size: 24px; transition: transform 0.3s; }
+.live-row.offline .live-row-name { opacity: 0.5; }
+.live-rank { font-family: var(--display); font-size: 30px; font-weight: 700; color: #aab4cc; text-align: center; }
+.live-row-name { font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.live-progress { height: 18px; background: #0f172e; border-radius: 999px; overflow: hidden; }
+.live-progress-fill { display: block; height: 100%; background: var(--orange); border-radius: 999px; transition: width 0.5s; }
+.live-row-status { font-family: var(--mono); font-size: 20px; color: #cfd6e6; }
+.live-points { font-family: var(--display); font-size: 30px; font-weight: 700; text-align: right; }
+.live-row.medal-1 { background: #6b5200; }
+.live-row.medal-2 { background: #4a5568; }
+.live-row.medal-3 { background: #7a4419; }
+.live-board-small .live-row { grid-template-columns: 56px 1fr 120px 110px; font-size: 20px; }
+
+.live-podium { display: flex; align-items: flex-end; justify-content: center; gap: 20px; flex: 1; padding-top: 20px; }
+.podium-step { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 260px; max-width: 30vw; }
+.podium-name { font-family: var(--display); font-size: 36px; font-weight: 700; text-align: center; word-break: break-word; }
+.podium-points { font-size: 24px; font-weight: 800; color: #cfd6e6; }
+.podium-block { width: 100%; border-radius: 16px 16px 0 0; display: flex; align-items: flex-start; justify-content: center; padding-top: 12px; font-family: var(--display); font-size: 64px; font-weight: 700; color: var(--navy); }
+.podium-1 .podium-block { height: 240px; background: #ffd43b; }
+.podium-2 .podium-block { height: 170px; background: #dee2e6; }
+.podium-3 .podium-block { height: 120px; background: #e8a464; }
+.live-host .confetti { pointer-events: none; }
+@media (max-width: 900px) {
+  .live-row { grid-template-columns: 40px 1fr 90px 80px 40px; font-size: 18px; }
+  .live-row .live-progress { display: none; }
+  .live-code { font-size: 72px; letter-spacing: 8px; }
+}
+@media (max-width: 640px) {
+  .join-card, .lobby-card { padding: 20px; }
+  .lobby-name { font-size: 36px; }
+}

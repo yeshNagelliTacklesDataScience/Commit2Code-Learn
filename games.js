@@ -40,14 +40,29 @@
     return node;
   }
 
-  function shuffle(list) {
+  // Shuffles a copy of the list. With the same random() (from seededRandom),
+  // every computer gets the same order, which live games rely on.
+  function shuffle(list, random) {
+    const rnd = random || Math.random;
     const a = list.slice();
     for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
+      const j = Math.floor(rnd() * (i + 1));
       [a[i], a[j]] = [a[j], a[i]];
     }
     return a;
   }
+  function seededRandom(seed) {
+    let t = seed >>> 0;
+    return function () {
+      t = (t + 0x6d2b79f5) >>> 0;
+      let r = Math.imul(t ^ (t >>> 15), 1 | t);
+      r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r;
+      return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  // Where game screens are drawn: the Game Room normally, the Join tab for live games.
+  let stageRoot = app;
 
   const CODE_CHARS = "ACDEFHJKMNPRTUVWXY3479";
   function checkCode(key) {
@@ -180,7 +195,7 @@
     if (!r) return;
     if (r.game === "scoreboard") { Scoreboard.open(); return; }
     const key = r.game + "/" + topicsKey(r.topics);
-    if (session && !session.finished) {
+    if (session && !session.finished && !session.live) {
       // Coming back to the Game Room (from another tab) keeps the game going.
       if (key === session.routeKey || r.game === "") {
         history.replaceState(null, "", "#games/" + session.routeKey);
@@ -191,7 +206,7 @@
         return;
       }
     }
-    endSession();
+    if (!(session && session.live)) endSession();
     if (GAMES[r.game]) renderSetup(r.game, r.topics);
     else renderMenu();
   }
@@ -213,6 +228,7 @@
 
   // ------------------------------------------------------------------ menu
   function renderMenu() {
+    stageRoot = app;
     document.getElementById("tab-games").classList.remove("is-playing");
     app.replaceChildren(
       h("div", { class: "game-menu" },
@@ -235,6 +251,7 @@
 
   // ----------------------------------------------------------------- setup
   function renderSetup(gameId, preselected) {
+    stageRoot = app;
     document.getElementById("tab-games").classList.remove("is-playing");
     const g = GAMES[gameId];
     const pool = gameId === "debug" ? DATA.DEBUG : gameId === "escape" ? DATA.ESCAPE : DATA.RELAY;
@@ -329,14 +346,24 @@
   }
 
   // ------------------------------------------------------- shared pieces
-  function newSession(type, team, topics, routeKey) {
+  // opts (live games only): { container, seed, startedAt, resume, live: { onProgress, onFinish } }
+  function newSession(type, team, topics, routeKey, opts) {
+    const o = opts || {};
     endSession();
-    session = { type, team, topics, routeKey, started: Date.now(), penalty: 0, hints: 0, finished: false, running: false };
-    history.replaceState(null, "", "#games/" + routeKey);
-    const panel = document.getElementById("tab-games");
-    panel.classList.add("is-playing");
-    window.scrollTo(0, panel.offsetTop - 8);
+    stageRoot = o.container || app;
+    session = { type, team, topics, routeKey, started: o.startedAt || Date.now(), penalty: 0, hints: 0, finished: false, running: false, live: o.live || null, done: 0 };
+    if (!o.live) history.replaceState(null, "", "#games/" + routeKey);
+    const panel = stageRoot.closest(".tab-panel");
+    if (panel) {
+      panel.classList.add("is-playing");
+      window.scrollTo(0, panel.offsetTop - 8);
+    }
     return session;
+  }
+
+  // Tells a live game's leaderboard how far this player has gotten.
+  function report(s, solvedCount) {
+    if (s.live && s.live.onProgress) s.live.onProgress({ done: s.done, solved: solvedCount, penalty: s.penalty });
   }
 
   function elapsed(s) {
@@ -346,7 +373,7 @@
   function gameBar(s, title, progressEl, extra) {
     const clock = h("span", { class: "game-clock" }, icon("clock", 18), h("span", { class: "clock-text", text: "0:00" }));
     s.tick = setInterval(() => { clock.querySelector(".clock-text").textContent = fmtTime(elapsed(s)); }, 250);
-    const quit = h("button", { type: "button", class: "btn-ghost btn-small", text: "Quit", onclick: () => {
+    const quit = s.live ? null : h("button", { type: "button", class: "btn-ghost btn-small", text: "Quit", onclick: () => {
       if (s.finished || window.confirm("Quit this game?")) { endSession(); goTo("games"); }
     } });
     return h("div", { class: "game-bar" },
@@ -429,7 +456,8 @@
     clearInterval(s.tick);
     s.finished = true;
     s.finishedAt = s.finishedAt || Date.now();
-    app.replaceChildren(
+    if (s.live) code = null; // live games score themselves
+    stageRoot.replaceChildren(
       h("div", { class: "finish" },
         h("p", { class: "eyebrow", text: GAMES[s.type].title }),
         h("h2", { class: "finish-title", text: heading }),
@@ -438,35 +466,50 @@
           h("div", { class: "stat" }, h("p", { class: "stat-num", text: fmtTime(elapsed(s)) }), h("p", { class: "stat-label", text: "Total time" })),
           lines.map(([num, label]) => h("div", { class: "stat" }, h("p", { class: "stat-num", text: String(num) }), h("p", { class: "stat-label", text: label })))),
         code ? h("div", { class: "finish-code" }, h("p", { text: "Show your teacher this check code" }), h("p", { class: "finish-code-big", text: code })) : null,
-        h("div", { class: "actions" },
-          h("button", { type: "button", class: "btn-run", onclick: onAgain, text: "Play again" }),
-          h("a", { class: "btn-ghost", href: "#games", text: "Back to all games" }))));
+        s.live
+          ? h("p", { class: "finish-live", text: s.live.finishNote || "Look at the big screen to see where you placed!" })
+          : h("div", { class: "actions" },
+            h("button", { type: "button", class: "btn-run", onclick: onAgain, text: "Play again" }),
+            h("a", { class: "btn-ghost", href: "#games", text: "Back to all games" }))));
   }
 
   // ----------------------------------------------------------- DEBUG RACE
-  function startDebug(team, topics, count, routeKey) {
-    const pool = shuffle(DATA.DEBUG.filter((r) => topics.includes(r.topic)));
+  function startDebug(team, topics, count, routeKey, opts) {
+    const o = opts || {};
+    const pool = shuffle(DATA.DEBUG.filter((r) => topics.includes(r.topic)), o.seed ? seededRandom(o.seed) : null);
     const rounds = pool.slice(0, Math.min(count, pool.length));
-    const s = newSession("debug", team, topics, routeKey);
+    const s = newSession("debug", team, topics, routeKey, o);
     s.rounds = rounds;
     s.index = 0;
     s.solved = [];
     s.skipped = 0;
+    if (o.resume) {
+      s.index = s.done = Math.min(o.resume.done || 0, rounds.length);
+      s.solved = new Array(Math.min(o.resume.solved || 0, s.index)).fill("earlier");
+      s.skipped = s.index - s.solved.length;
+      s.penalty = o.resume.penalty || 0;
+    }
 
     const progress = h("p", { class: "game-progress" });
     const skipBtn = h("button", { type: "button", class: "btn-ghost btn-small", text: "Skip round", onclick: () => nextRound(false) });
     const bar = gameBar(s, "Debug Race", progress, skipBtn);
     const stage = h("div", { class: "game-stage" });
-    app.replaceChildren(h("div", { class: "game-play" }, bar, stage));
+    stageRoot.replaceChildren(h("div", { class: "game-play" }, bar, stage));
 
     function nextRound(solved) {
-      if (!solved) s.skipped++;
+      if (!solved) {
+        s.skipped++;
+        s.done = s.index + 1;
+        report(s, s.solved.length);
+      }
       s.index++;
       if (s.index >= s.rounds.length) return finish();
       showRound();
     }
 
     function finish() {
+      s.finishedAt = s.finishedAt || Date.now();
+      if (s.live && s.live.onFinish) s.live.onFinish({ done: s.rounds.length, solved: s.solved.length, penalty: s.penalty, finished: Math.max(1, Math.round(elapsed(s))) });
       const code = s.solved.length === s.rounds.length ? checkCode("done:debug:" + topicsKey(topics)) : null;
       finishScreen(s, s.solved.length === s.rounds.length ? "Race finished!" : "Race over!",
         [[s.solved.length + " / " + s.rounds.length, "Rounds fixed"], [s.hints, "Hints used"]],
@@ -510,6 +553,8 @@
           }
           if (normOutput(r.transcript) === normOutput(round.expected)) {
             s.solved.push(round.id);
+            s.done = s.index + 1;
+            report(s, s.solved.length);
             const code = checkCode("round:" + round.id);
             const nextBtn = h("button", { type: "button", class: "btn-run", text: s.index + 1 < s.rounds.length ? "Next round →" : "See results", onclick: () => nextRound(true) });
             result.replaceChildren(solvedBanner("Round " + (s.index + 1) + " fixed!", code), h("div", { class: "actions" }, nextBtn));
@@ -539,25 +584,31 @@
       editor.focus();
     }
 
-    showRound();
+    if (s.index >= s.rounds.length) finish();
+    else showRound();
   }
 
   // ---------------------------------------------------------- ESCAPE ROOM
-  function startEscape(team, topics, count, routeKey) {
+  function startEscape(team, topics, count, routeKey, opts) {
+    const o = opts || {};
     const pool = DATA.ESCAPE.filter((r) => topics.includes(r.topic));
-    const picked = shuffle(pool).slice(0, Math.min(count, pool.length));
+    const picked = shuffle(pool, o.seed ? seededRandom(o.seed) : null).slice(0, Math.min(count, pool.length));
     picked.sort((a, b) => (a.level || 1) - (b.level || 1)); // easy doors first
-    const s = newSession("escape", team, topics, routeKey);
+    const s = newSession("escape", team, topics, routeKey, o);
     s.rooms = picked;
     s.index = 0;
     s.wrong = 0;
+    if (o.resume) {
+      s.index = s.done = Math.min(o.resume.done || 0, picked.length);
+      s.penalty = o.resume.penalty || 0;
+    }
 
     const locks = h("div", { class: "lock-row", attrs: { "aria-hidden": "true" } });
     const progressText = h("p", { class: "game-progress" });
     const progress = h("div", { class: "escape-progress" }, locks, progressText);
     const bar = gameBar(s, "Escape Room", progress);
     const stage = h("div", { class: "game-stage" });
-    app.replaceChildren(h("div", { class: "game-play" }, bar, stage));
+    stageRoot.replaceChildren(h("div", { class: "game-play" }, bar, stage));
 
     function drawLocks() {
       locks.replaceChildren(...s.rooms.map((_, i) => h("span", { class: "lock" + (i < s.index ? " open" : i === s.index ? " current" : "") }, icon(i < s.index ? "unlock" : "lock", 22))));
@@ -567,6 +618,8 @@
     function finish() {
       s.index = s.rooms.length;
       drawLocks();
+      s.finishedAt = s.finishedAt || Date.now();
+      if (s.live && s.live.onFinish) s.live.onFinish({ done: s.rooms.length, solved: s.rooms.length, penalty: s.penalty, finished: Math.max(1, Math.round(elapsed(s))) });
       finishScreen(s, "You escaped!", [[s.rooms.length, "Doors unlocked"], [s.wrong, "Wrong guesses"], [s.hints, "Hints used"]],
         checkCode("done:escape:" + topicsKey(topics)), () => startEscape(team, topics, count, routeKey));
     }
@@ -604,6 +657,8 @@
           if (normGuess(guess.value) === normGuess(answer)) {
             tryBtn.disabled = true;
             guess.readOnly = true;
+            s.done = s.index + 1;
+            report(s, s.done);
             const last = s.index + 1 >= s.rooms.length;
             const nextBtn = h("button", { type: "button", class: "btn-run", text: last ? "Escape! →" : "Next door →", onclick: () => { s.index++; if (s.index >= s.rooms.length) finish(); else showRoom(); } });
             feedback.replaceChildren(solvedBanner("Unlocked!", null, h("pre", { class: "answer-reveal", text: answer.replace(/\n$/, "") })), h("div", { class: "actions" }, nextBtn));
@@ -635,7 +690,8 @@
       guess.focus();
     }
 
-    showRoom();
+    if (s.index >= s.rooms.length) finish();
+    else showRoom();
   }
 
   // ---------------------------------------------------------- CODING RELAY
@@ -802,7 +858,7 @@
 
     C2C.enhanceEditor(editor, () => testBtn.click());
 
-    app.replaceChildren(
+    stageRoot.replaceChildren(
       h("div", { class: "game-play" }, bar,
         h("div", { class: "game-stage" },
           banner,
@@ -1052,6 +1108,41 @@
   })();
 
   C2C.Scoreboard = Scoreboard;
+
+  // Used by live.js to play Debug Race / Escape Room inside the Join tab.
+  C2C.Games = {
+    GAMES: GAMES,
+    topicLabel: topicLabel,
+    topicsText: topicsText,
+    startLive(o) {
+      const opts = {
+        container: o.container,
+        seed: o.seed,
+        startedAt: o.startedAt,
+        resume: o.resume,
+        live: { onProgress: o.onProgress, onFinish: o.onFinish },
+      };
+      if (o.type === "escape") startEscape(o.name, o.topics, o.count, "live", opts);
+      else startDebug(o.name, o.topics, o.count, "live", opts);
+    },
+    // The teacher ended the game while this player was still going.
+    forceEnd(message) {
+      const s = session;
+      if (!s || !s.live) return;
+      if (!s.finished) {
+        if (Python.isBusy() && s.running) Python.stop("left");
+        s.live.finishNote = message;
+        const total = s.rounds ? s.rounds.length : s.rooms.length;
+        const solved = s.solved ? s.solved.length : s.done;
+        finishScreen(s, "Time's up!", [[solved + " / " + total, s.type === "escape" ? "Doors unlocked" : "Rounds fixed"]], null, null);
+      }
+      session = null;
+    },
+    leave() {
+      if (session && session.live) endSession();
+    },
+    isPlayingLive: () => !!(session && session.live && !session.finished),
+  };
   C2C.checkCodeBook = CODE_BOOK;
 
   // First render

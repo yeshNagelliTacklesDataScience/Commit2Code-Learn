@@ -14,6 +14,8 @@ installs. Live at **learn.commit2code.org**.
 | `py-worker.js` | Runs the students' Python code (using Pyodide) |
 | `games.js` | The Game Room: Debug Race, Escape Room, Coding Relay, and the projector scoreboard |
 | `game-data.js` | Every game round, sorted by topic. **This is the file to edit to add rounds.** |
+| `live.js` | Live games: the Join a game tab and the teacher's live leaderboard (uses Firebase) |
+| `database.rules.json` | A copy of the Firebase security rules (with the teacher email left out) |
 | `CNAME` | Keeps the custom domain (learn.commit2code.org) working. Don't delete it. |
 | `README.md` | These instructions |
 
@@ -62,6 +64,36 @@ the projector (or go to `#games/scoreboard`).
 - **Show winner** puts the leading team on screen with confetti.
 - Scores are saved on that computer, so a refresh won't lose them. Use **Reset
   scores** to start fresh.
+
+### Live games (automatic leaderboard)
+
+Students join from their own computers, and the projector's leaderboard updates
+by itself. No student accounts are needed.
+
+1. On the projector computer, open the **Game Room** and click **Host a live
+   game**. Sign in with the teacher email and password (from Firebase).
+2. Pick the game, topics, number of rounds, and scoring, then click **Create game**.
+3. Students click **Join a game** (top right of every page), type the 5-letter
+   code and their first name, or scan the QR code on the screen.
+4. Click **Start game**. Everyone gets the same rounds in the same order, and
+   the board shows each player's progress, points, and finishing place.
+5. Click **End game** to show the podium. **Play again with the same players**
+   starts a fresh round in the same room, and **New game** closes the room.
+
+Scoring: points for each round solved (you choose 0, 1, or 2), plus an optional
+bonus for the first three players to finish everything (+5, +3, +2).
+
+- Click the × next to a name to remove a player. They can't rejoin that game.
+- If a student refreshes the page, they rejoin automatically where they left off.
+- On a shared computer, use a private/incognito window and press **Sign out**
+  when you're done.
+- Rooms delete themselves after 12 hours.
+- Live games use Google's Firebase. If a club's network blocks it, students see
+  a "Couldn't connect" message. You can still use the regular games with check codes.
+
+Firebase project: `commit2code-games`. The security rules in Firebase
+(**Realtime Database → Rules**) control who can do what. `database.rules.json`
+is a copy with `TEACHER_EMAIL_HERE` where the teacher email goes.
 
 ### Adding game rounds
 

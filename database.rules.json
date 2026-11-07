@@ -1,0 +1,28 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "rooms": {
+      ".read": "auth != null && auth.token.email == 'TEACHER_EMAIL_HERE'",
+      "$code": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.token.email == 'TEACHER_EMAIL_HERE'",
+        "players": {
+          "$uid": {
+            ".write": "auth != null && auth.uid == $uid && root.child('rooms').child($code).child('status').exists() && root.child('rooms').child($code).child('status').val() != 'ended' && !root.child('rooms').child($code).child('banned').child($uid).exists()",
+            ".validate": "newData.child('name').isString() && newData.child('name').val().length >= 1 && newData.child('name').val().length <= 24",
+            "name": { ".validate": "newData.isString()" },
+            "online": { ".validate": "newData.isBoolean()" },
+            "joinedAt": { ".validate": "newData.isNumber()" },
+            "done": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 50" },
+            "solved": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 50" },
+            "penalty": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+            "finished": { ".validate": "newData.isNumber() && newData.val() > 0" },
+            "finishedAt": { ".validate": "newData.isNumber()" },
+            "$other": { ".validate": false }
+          }
+        }
+      }
+    }
+  }
+}
